@@ -36,6 +36,21 @@ class TreeViewModel(private val treeRepository: TreeRepository) : ViewModel() {
         }
     }
 
+    fun getTreesToGrow() {
+        viewModelScope.launch {
+            treeRepository.getTreesToGrow().collect{
+                _treeList.value = it
+            }
+        }
+    }
+
+    fun getTreesInShop() {
+        viewModelScope.launch {
+            treeRepository.getTreesInShop().collect{
+                _treeList.value = it
+            }
+        }
+    }
     fun UpdateTree(tree: Tree){
         viewModelScope.launch {
             treeRepository.UpdateTree(tree)

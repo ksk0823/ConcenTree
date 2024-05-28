@@ -17,4 +17,8 @@ class TreeRepository(private val treeDao: TreeDao) {
     }
 
     fun getAllTrees() = treeDao.getAllTrees()
+
+    fun getTreesToGrow() = treeDao.getTreesToGrow()
+
+    fun getTreesInShop() = treeDao.getTreesInShop()
 }

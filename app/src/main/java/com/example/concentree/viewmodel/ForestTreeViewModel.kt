@@ -40,6 +40,12 @@ class ForestTreeViewModel(private val forestTreeRepository: ForestTreeRepository
         }
     }
 
+    fun getAllTreesInForest(){
+        viewModelScope.launch {
+            _forestTreeList.value = forestTreeRepository.getAllTreesInForest()
+        }
+    }
+
     fun UpdateForestTree(forestTree: ForestTree){
         viewModelScope.launch {
             forestTreeRepository.UpdateForestTree(forestTree)

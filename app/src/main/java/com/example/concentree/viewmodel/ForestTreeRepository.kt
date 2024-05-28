@@ -17,6 +17,10 @@ class ForestTreeRepository(private val forestTreeDao: ForestTreeDao) {
         return forestTreeDao.getTreesAtPosition(x, y)
     }
 
+    suspend fun getAllTreesInForest(): List<ForestTree> {
+        return forestTreeDao.getAllTreesInForest()
+    }
+
     suspend fun UpdateForestTree(forestTree: ForestTree){
         forestTreeDao.UpdateForestTree(forestTree)
     }
