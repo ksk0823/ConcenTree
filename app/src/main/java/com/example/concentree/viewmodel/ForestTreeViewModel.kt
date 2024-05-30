@@ -7,6 +7,7 @@ import com.example.concentree.roomDB.ForestTree
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class ForestTreeViewModelFactory(private val forestTreeRepository: ForestTreeRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -28,7 +29,7 @@ class ForestTreeViewModel(private val forestTreeRepository: ForestTreeRepository
         }
     }
 
-    fun getTreesInRange(startTime: Long, endTime: Long) {
+    fun getTreesInRange(startTime: LocalDateTime, endTime: LocalDateTime) {
         viewModelScope.launch {
             _forestTreeList.value = forestTreeRepository.getTreesInRange(startTime, endTime)
         }
