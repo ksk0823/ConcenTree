@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import java.time.LocalDateTime
 
 @Dao
 interface ForestTreeDao {
@@ -12,7 +13,7 @@ interface ForestTreeDao {
     // 특정 시간 내 심었던 나무들만 가져오기
     // 통계 그래프용
     @Query("SELECT * FROM forest_tree WHERE startTime >= :startTime AND endTime <= :endTime")
-    suspend fun getTreesInRange(startTime: Long, endTime: Long): List<ForestTree>
+    suspend fun getTreesInRange(startTime: LocalDateTime, endTime: LocalDateTime): List<ForestTree>
 
     // 정원에 나무 출력 용도로 위치 별로 나무 가져오기
     @Query("SELECT * FROM forest_tree WHERE xPosition = :x AND yPosition = :y")

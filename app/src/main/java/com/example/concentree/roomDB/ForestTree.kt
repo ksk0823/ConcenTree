@@ -3,6 +3,7 @@ package com.example.concentree.roomDB
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 
 @Entity(
     tableName = "forest_tree",
@@ -16,9 +17,9 @@ import androidx.room.PrimaryKey
 data class ForestTree(
     @PrimaryKey(autoGenerate = true) val id: Int,
     val treeId: Int,
-    val startTime: Long,
-    val endTime: Long,
-    val successful: Boolean,
+    val startTime: LocalDateTime,
+    val endTime: LocalDateTime,
+    val treeStage: Int,
     val onForest: Boolean,
     val taskDescription: String,
     val xPosition: Int,

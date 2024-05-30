@@ -2,6 +2,7 @@ package com.example.concentree.viewmodel
 
 import com.example.concentree.roomDB.ForestTree
 import com.example.concentree.roomDB.ForestTreeDao
+import java.time.LocalDateTime
 
 class ForestTreeRepository(private val forestTreeDao: ForestTreeDao) {
 
@@ -9,7 +10,7 @@ class ForestTreeRepository(private val forestTreeDao: ForestTreeDao) {
         forestTreeDao.insertForestTree(forestTree)
     }
 
-    suspend fun getTreesInRange(startTime: Long, endTime: Long): List<ForestTree> {
+    suspend fun getTreesInRange(startTime: LocalDateTime, endTime: LocalDateTime): List<ForestTree> {
         return forestTreeDao.getTreesInRange(startTime, endTime)
     }
 
