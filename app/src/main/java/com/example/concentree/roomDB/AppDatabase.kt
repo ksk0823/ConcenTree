@@ -14,7 +14,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getUserDao(): UserDao
     abstract fun getTreeDao(): TreeDao
     abstract fun getForestTreeDao(): ForestTreeDao
-    abstract fun getPhraseDao(): Phrase
+    abstract fun getPhraseDao(): PhraseDao
 
 
     companion object {
