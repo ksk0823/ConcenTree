@@ -1,10 +1,12 @@
 package com.example.concentree.viewmodel
 
+import com.example.concentree.roomDB.AppDatabase
 import com.example.concentree.roomDB.ForestTree
-import com.example.concentree.roomDB.ForestTreeDao
 import java.time.LocalDateTime
 
-class ForestTreeRepository(private val forestTreeDao: ForestTreeDao) {
+class ForestTreeRepository(private val db: AppDatabase) {
+
+    val forestTreeDao = db.getForestTreeDao()
 
     suspend fun insertForestTree(forestTree: ForestTree) {
         forestTreeDao.insertForestTree(forestTree)

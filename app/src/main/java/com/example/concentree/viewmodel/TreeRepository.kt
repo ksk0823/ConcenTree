@@ -1,9 +1,11 @@
 package com.example.concentree.viewmodel
 
+import com.example.concentree.roomDB.AppDatabase
 import com.example.concentree.roomDB.Tree
-import com.example.concentree.roomDB.TreeDao
 
-class TreeRepository(private val treeDao: TreeDao) {
+class TreeRepository(private val db: AppDatabase) {
+
+    val treeDao = db.getTreeDao()
 
     suspend fun insertTree(tree: Tree) {
         treeDao.insertTree(tree)
