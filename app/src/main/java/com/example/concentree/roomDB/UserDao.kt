@@ -1,13 +1,21 @@
 package com.example.concentree.roomDB
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface UserDao {
     @Insert
-    suspend fun insertUser(user: User)
+    suspend fun InsertUser(user: User)
+
+    @Update
+    suspend fun UpdateUser(user: User)
+
+    @Delete
+    suspend fun DeleteUser(user: User)
 
     @Query("SELECT * FROM user WHERE id = :id")
     suspend fun getUserById(id: Int): User?

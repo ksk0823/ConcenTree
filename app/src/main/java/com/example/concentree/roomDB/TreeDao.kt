@@ -22,7 +22,7 @@ interface TreeDao {
     fun getTreesInShop(): Flow<List<Tree>>
 
     @Insert
-    suspend fun insertTree(tree: Tree)
+    suspend fun InsertTree(tree: Tree)
 
     @Update
     suspend fun UpdateTree(tree: Tree)

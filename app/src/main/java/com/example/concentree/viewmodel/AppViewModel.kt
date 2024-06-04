@@ -1,5 +1,6 @@
 package com.example.concentree.viewmodel
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -12,19 +13,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-class ViewModelFactory(private val phraseRepository: PhraseRepository,
+class AppViewModelFactory(private val phraseRepository: PhraseRepository,
                        private val forestTreeRepository: ForestTreeRepository,
                        private val treeRepository: TreeRepository,
                        private val userRepository: UserRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ViewModel::class.java)) {
-            return ViewModel(phraseRepository, forestTreeRepository, treeRepository, userRepository) as T
+        if (modelClass.isAssignableFrom(AppViewModel::class.java)) {
+            return AppViewModel(phraseRepository, forestTreeRepository, treeRepository, userRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
-class ViewModel(private val phraseRepository: PhraseRepository,
+class AppViewModel(private val phraseRepository: PhraseRepository,
                 private val forestTreeRepository: ForestTreeRepository,
                 private val treeRepository: TreeRepository,
                 private val userRepository: UserRepository) : ViewModel() {
@@ -43,9 +44,9 @@ class ViewModel(private val phraseRepository: PhraseRepository,
 
     // Phrase
 
-    fun insertPhrase(phrase: Phrase) {
+    fun InsertPhrase(phrase: Phrase) {
         viewModelScope.launch {
-            phraseRepository.insertPhrase(phrase)
+            phraseRepository.InsertPhrase(phrase)
         }
     }
 
@@ -104,9 +105,9 @@ class ViewModel(private val phraseRepository: PhraseRepository,
 
     // Tree
 
-    fun insertTree(tree: Tree) {
+    fun InsertTree(tree: Tree) {
         viewModelScope.launch {
-            treeRepository.insertTree(tree)
+            treeRepository.InsertTree(tree)
         }
     }
 
@@ -146,9 +147,21 @@ class ViewModel(private val phraseRepository: PhraseRepository,
 
     // User
 
-    fun insertUser(user: User) {
+    fun InsertUser(user: User) {
         viewModelScope.launch {
-            userRepository.insertUser(user)
+            userRepository.InsertUser(user)
+        }
+    }
+
+    fun UpdateUser(user: User) {
+        viewModelScope.launch {
+            userRepository.UpdateUser(user)
+        }
+    }
+
+    fun DeleteUser(user: User) {
+        viewModelScope.launch {
+            userRepository.DeleteUser(user)
         }
     }
 

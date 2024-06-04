@@ -10,8 +10,8 @@ class PhraseRepository(private val db: AppDatabase) {
     suspend fun getAllPhrases(): List<Phrase> {
         return phraseDao.getAllPhrases()
     }
-    suspend fun insertPhrase(phrase: Phrase) {
-        phraseDao.insertPhrase(phrase)
+    suspend fun InsertPhrase(phrase: Phrase) {
+        phraseDao.InsertPhrase(phrase)
     }
     suspend fun UpdatePhrase(phrase: Phrase){
         phraseDao.UpdatePhrase(phrase)

@@ -7,8 +7,8 @@ class TreeRepository(private val db: AppDatabase) {
 
     val treeDao = db.getTreeDao()
 
-    suspend fun insertTree(tree: Tree) {
-        treeDao.insertTree(tree)
+    suspend fun InsertTree(tree: Tree) {
+        treeDao.InsertTree(tree)
     }
 
     suspend fun UpdateTree(tree: Tree){

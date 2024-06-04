@@ -8,8 +8,15 @@ class UserRepository(private val db: AppDatabase) {
 
     val userDao = db.getUserDao()
 
-    suspend fun insertUser(user: User) {
-        userDao.insertUser(user)
+    suspend fun InsertUser(user: User) {
+        userDao.InsertUser(user)
+    }
+
+    suspend fun UpdateUser(user: User){
+        userDao.UpdateUser(user)
+    }
+    suspend fun DeleteUser(user: User){
+        userDao.DeleteUser(user)
     }
 
     suspend fun getUserById(id: Int): User? {

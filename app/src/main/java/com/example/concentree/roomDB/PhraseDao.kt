@@ -10,7 +10,7 @@ interface PhraseDao {
     suspend fun getAllPhrases(): List<Phrase>
 
     @Insert
-    suspend fun insertPhrase(phrase: Phrase)
+    suspend fun InsertPhrase(phrase: Phrase)
 
     @Update
     suspend fun UpdatePhrase(phrase: Phrase)
