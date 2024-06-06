@@ -1,10 +1,12 @@
 package com.example.concentree.roomDB
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 
+@Dao
 interface PhraseDao {
     @Query("SELECT * FROM phrase")
     suspend fun getAllPhrases(): List<Phrase>

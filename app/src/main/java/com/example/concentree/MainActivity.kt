@@ -11,15 +11,30 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key.Companion.I
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.concentree.components.ConcenTreeNavigationBar
 import com.example.concentree.navigation.NavGraph
+import com.example.concentree.roomDB.AppDatabase
+import com.example.concentree.roomDB.User
 import com.example.concentree.ui.theme.ConcenTreeTheme
-import com.example.concentree.viewmodel.ViewModel
+import com.example.concentree.viewmodel.AppViewModel
+import com.example.concentree.viewmodel.AppViewModelFactory
+import com.example.concentree.viewmodel.ForestTreeRepository
+import com.example.concentree.viewmodel.PhraseRepository
+import com.example.concentree.viewmodel.TreeRepository
+import com.example.concentree.viewmodel.UserRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,11 +56,22 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val db = AppDatabase.getDatabase(context)
+    val viewModel : AppViewModel = viewModel(factory =
+    AppViewModelFactory(PhraseRepository(db), ForestTreeRepository(db), TreeRepository(db), UserRepository(db)))
+    LaunchedEffect(Unit) {
+        val user = viewModel.getUserById(1)
+        if (user == null) {
+            val newUser = User(1, "user", 0)
+            viewModel.InsertUser(newUser)
+        }
+    }
     Scaffold(
         bottomBar = { ConcenTreeNavigationBar(navController)}
     ){
         Box(Modifier.padding(it)){
-            NavGraph(navController)
+            NavGraph(navController, viewModel)
         }
     }
 }
