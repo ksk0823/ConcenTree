@@ -26,7 +26,7 @@ import com.example.concentree.viewmodel.AppViewModel
 fun NavGraph(navController: NavHostController, viewModel : AppViewModel) {
     NavHost(navController = navController, startDestination = "Growth") {
         composable("Shop") {
-            ShopScreen()
+            ShopScreen(viewModel)
         }
         composable("Forest") {
             ForestScreen()
@@ -35,7 +35,7 @@ fun NavGraph(navController: NavHostController, viewModel : AppViewModel) {
             GrowthScreen(viewModel)
         }
         composable("Chart") {
-            ChartScreen()
+            ChartScreen(viewModel)
         }
         composable("Setting") {
             SettingScreen(viewModel)
