@@ -42,11 +42,34 @@ class AppViewModel(private val phraseRepository: PhraseRepository,
     private val _user = MutableStateFlow<User?>(null)
     val user = _user.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            val user = userRepository.getUserById(1)
+            if (user == null) {
+                // 최초 실행 시 사용자 생성 및 초기화
+                val newUser = User(1, "user", 0) // 초기 username은 "user"로 설정
+                userRepository.InsertUser(newUser)
+            }
+        }
+    }
+
     // Phrase
 
     fun InsertPhrase(phrase: Phrase) {
         viewModelScope.launch {
             phraseRepository.InsertPhrase(phrase)
+        }
+    }
+
+    fun UpdatePhrase(phrase: Phrase) {
+        viewModelScope.launch {
+            phraseRepository.UpdatePhrase(phrase)
+        }
+    }
+
+    fun DeletePhrase(phrase: Phrase) {
+        viewModelScope.launch {
+            phraseRepository.DeletePhrase(phrase)
         }
     }
 

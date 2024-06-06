@@ -20,9 +20,10 @@ import com.example.concentree.screens.ForestScreen
 import com.example.concentree.screens.GrowthScreen
 import com.example.concentree.screens.SettingScreen
 import com.example.concentree.screens.ShopScreen
+import com.example.concentree.viewmodel.AppViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(navController: NavHostController, viewModel : AppViewModel) {
     NavHost(navController = navController, startDestination = "Growth") {
         composable("Shop") {
             ShopScreen()
@@ -31,13 +32,13 @@ fun NavGraph(navController: NavHostController) {
             ForestScreen()
         }
         composable("Growth") {
-            GrowthScreen()
+            GrowthScreen(viewModel)
         }
         composable("Chart") {
             ChartScreen()
         }
         composable("Setting") {
-            SettingScreen()
+            SettingScreen(viewModel)
         }
     }
 }
