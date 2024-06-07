@@ -2,6 +2,7 @@ package com.example.concentree.viewmodel
 
 import com.example.concentree.roomDB.AppDatabase
 import com.example.concentree.roomDB.Tree
+import com.example.concentree.roomDB.User
 
 class TreeRepository(private val db: AppDatabase) {
 
@@ -16,6 +17,10 @@ class TreeRepository(private val db: AppDatabase) {
     }
     suspend fun DeleteTree(tree: Tree){
         treeDao.DeleteTree(tree)
+    }
+
+    suspend fun getTreeById(id: Int): Tree? {
+        return treeDao.getTreeById(id)
     }
 
     fun getAllTrees() = treeDao.getAllTrees()
