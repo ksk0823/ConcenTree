@@ -21,6 +21,9 @@ interface TreeDao {
     @Query("SELECT * FROM tree where isPurchased = false")
     fun getTreesInShop(): Flow<List<Tree>>
 
+    @Query("SELECT * FROM tree WHERE id = :id")
+    suspend fun getTreeById(id: Int): Tree?
+
     @Insert
     suspend fun InsertTree(tree: Tree)
 
@@ -29,4 +32,5 @@ interface TreeDao {
 
     @Delete
     suspend fun DeleteTree(tree: Tree)
+
 }

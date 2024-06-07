@@ -15,7 +15,7 @@ import java.time.LocalDateTime
     )]
 )
 data class ForestTree(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int=0,
     val treeId: Int,
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
