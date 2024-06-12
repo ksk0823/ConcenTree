@@ -24,5 +24,6 @@ data class ForestTree(
     val taskDescription: String,
     val xPosition: Int,
     val yPosition: Int,
-    val forestId: Int
+    val forestId: Int,
+    val color: Int
 )
