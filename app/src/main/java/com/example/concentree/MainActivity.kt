@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.concentree.components.ConcenTreeNavigationBar
 import com.example.concentree.navigation.NavGraph
 import com.example.concentree.roomDB.AppDatabase
+import com.example.concentree.roomDB.Tree
 import com.example.concentree.roomDB.User
 import com.example.concentree.ui.theme.ConcenTreeTheme
 import com.example.concentree.viewmodel.AppViewModel
