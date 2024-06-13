@@ -1,6 +1,7 @@
 package com.example.concentree
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key.Companion.I
 import androidx.compose.ui.platform.LocalContext
@@ -67,7 +70,22 @@ fun MainScreen(navController: NavHostController) {
             val newUser = User(1, "user", 0)
             viewModel.InsertUser(newUser)
         }
+
+        // TODO: 테스트용 데이터 넣는부분 나중에 꼭 지우기
+//        for(i in 1..10) {
+//            val tt = Tree(0, name="${i}번째 나무", description = "상점", price = 100, isPurchased = false)
+//            viewModel.InsertTree(tt)
+//        }
+//        for(i in 1..10) {
+//            val tt = Tree(0, name="${i}번째 나무", description = "상점X", price = 100, isPurchased = true)
+//            viewModel.InsertTree(tt)
+//        }
+
+
+
     }
+
+
     Scaffold(
         bottomBar = { ConcenTreeNavigationBar(navController)}
     ){
