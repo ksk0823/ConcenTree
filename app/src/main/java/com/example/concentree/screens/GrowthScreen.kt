@@ -182,7 +182,8 @@ fun GrowthScreen(viewModel: AppViewModel) {
                         taskDescription = settingDescription,
                         xPosition = 0,
                         yPosition = 0,
-                        forestId = 0
+                        forestId = 0,
+                        color = 1
                     )
                     // ForestTree DB에 추가
                     viewModel.insertForestTree(newForestTree)
