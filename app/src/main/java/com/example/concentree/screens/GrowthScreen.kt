@@ -2,10 +2,13 @@ package com.example.concentree.screens
 
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation.Companion.keyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,6 +51,7 @@ fun GrowthScreen(viewModel: AppViewModel) {
     var startTime by remember { mutableStateOf(LocalDateTime.MIN) }
     var settingTree by remember { mutableStateOf<Tree>(Tree(0,"init","",0,false)) }
     var settingId by remember { mutableStateOf(0) }
+    var settingColor by remember { mutableStateOf(0) }
     var settingDescription by remember { mutableStateOf("") }
 
     val user by viewModel.user.collectAsState()
@@ -93,19 +97,19 @@ fun GrowthScreen(viewModel: AppViewModel) {
     LaunchedEffect(timeLeftSeconds) {
         if(timeLeftSeconds == 0 && initSeconds != 0){
             treeStage = 3
-            val imgFindString = settingTree.name+"_level3"
+            val imgFindString = settingTree.name+"_level3_"+settingColor
             val imageResourceId = context.resources.getIdentifier(imgFindString, "drawable", context.packageName)
             treeImage =  imageResourceId
         }
         else if(0 < timeLeftSeconds && timeLeftSeconds <= initSeconds * 1/3){
             treeStage = 2
-            val imgFindString = settingTree.name+"_level2"
+            val imgFindString = settingTree.name+"_level2_"+settingColor
             val imageResourceId = context.resources.getIdentifier(imgFindString, "drawable", context.packageName)
             treeImage =  imageResourceId
         }
         else if(initSeconds * 1/3 < timeLeftSeconds && timeLeftSeconds <= initSeconds * 2/3){
             treeStage = 1
-            val imgFindString = settingTree.name+"_level1"
+            val imgFindString = settingTree.name+"_level1_"+settingColor
             val imageResourceId = context.resources.getIdentifier(imgFindString, "drawable", context.packageName)
             treeImage =  imageResourceId
         }
@@ -182,7 +186,8 @@ fun GrowthScreen(viewModel: AppViewModel) {
                         taskDescription = settingDescription,
                         xPosition = 0,
                         yPosition = 0,
-                        forestId = 0
+                        forestId = 0,
+                        color = settingColor
                     )
                     // ForestTree DB에 추가
                     viewModel.insertForestTree(newForestTree)
@@ -202,15 +207,16 @@ fun GrowthScreen(viewModel: AppViewModel) {
         }
 
         if (showPopup) {
-            TreeSelectionPopup(viewModel, treeList = treeList, onDismiss = { showPopup = false }, onConfirm = { time, selectedTree,description ->
-                timeLeftSeconds = timeToSeconds(time)  // Convert time to seconds
+            TreeSelectionPopup(viewModel, treeList = treeList, onDismiss = { showPopup = false }, onConfirm = { time, selectedTree, selectedColor, description ->
+                timeLeftSeconds = timeToSeconds(time)
                 treeImage = R.drawable.seed
-                timerStarted = true  // Start the timer
+                timerStarted = true
 
                 startTime = LocalDateTime.now()
                 selectedTree?.let {
                     settingTree = selectedTree
                 }
+                settingColor = selectedColor
                 settingDescription = description
             })
         }
@@ -218,13 +224,15 @@ fun GrowthScreen(viewModel: AppViewModel) {
 }
 
 @Composable
-fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss: () -> Unit, onConfirm: (String, Tree?, String) -> Unit) {
+fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss: () -> Unit, onConfirm: (String, Tree?, Int, String) -> Unit) {
     var selectedTree by remember { mutableStateOf<Tree?>(null) }
     var description by remember { mutableStateOf("") }
 
     var time by remember { mutableStateOf(TextFieldValue("")) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    var selectedColor by remember { mutableStateOf(0) }
+    val colorOptions = listOf(Color.Green, Color.Red, Color.Yellow, Color.Blue, Color.Magenta)
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
@@ -251,20 +259,41 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    colorOptions.forEachIndexed { index, color ->
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(color, shape = RoundedCornerShape(8.dp))
+                                .clickable { selectedColor = index + 1 }
+                                .border(
+                                    width = if (selectedColor == index + 1) 2.dp else 0.dp,
+                                    color = if (selectedColor == index + 1) Color.Black else Color.Transparent,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(8.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 OutlinedTextField(
                     modifier = Modifier
-                        .fillMaxWidth()
-                    ,
+                        .fillMaxWidth(),
                     value = time,
                     onValueChange = { newText ->
-                        // Only keep digits and limit to 4 characters
                         val digitsOnly = newText.text.filter { it.isDigit() }.take(4)
                         if (digitsOnly.length <= 4) {
                             val result = digitsOnly.formatTimeAndMoveCursor()
                             time = result
                             if(digitsOnly.length == 4){
                                 val parts = time.text.split(":").map { it.toInt() }
-                                errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] ==0 && parts[1] < 30)) {
+                                //errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] < 30)) {
+                                errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] == 0)) {
                                     "시간은 3시간 이하, 30분 이상이여야 합니다."
                                 } else {
                                     null
@@ -309,8 +338,8 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = {
-                        if(errorMessage==null){
-                            onConfirm(time.text, selectedTree, description)
+                        if (errorMessage == null) {
+                            onConfirm(time.text, selectedTree, selectedColor, description)
                             onDismiss()
                         }
                     }) {
