@@ -7,5 +7,11 @@ import androidx.room.PrimaryKey
 data class User(
     @PrimaryKey(autoGenerate = false) val id: Int,
     val username: String,
-    val coins: Int
+    val coins: Int,
+    val colorGreen: Boolean,
+    val colorYellow: Boolean,
+    val colorPink: Boolean,
+    val colorRed: Boolean,
+    val colorPurple: Boolean,
+    val colorWhite: Boolean
 )
