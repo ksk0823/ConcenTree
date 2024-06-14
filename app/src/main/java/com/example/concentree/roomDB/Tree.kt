@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "tree")
 
 data class Tree(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = false) val id: Int,
     val name: String,
     val description: String,
     val price: Int,
