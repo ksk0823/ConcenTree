@@ -47,9 +47,11 @@ class AppViewModel(private val phraseRepository: PhraseRepository,
             val user = userRepository.getUserById(1)
             if (user == null) {
                 // 최초 실행 시 사용자 생성 및 초기화
-                val newUser = User(1, "user", 0) // 초기 username은 "user"로 설정
+                val newUser = User(1, "user", 0
+                    , false, false, false, false, false, false) // 초기 username은 "user"로 설정
                 userRepository.InsertUser(newUser)
             }
+            getUserById(1)
         }
     }
 

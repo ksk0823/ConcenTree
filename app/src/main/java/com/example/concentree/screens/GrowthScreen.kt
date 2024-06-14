@@ -1,6 +1,7 @@
 package com.example.concentree.screens
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.InputTransformation.Companion.keyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -159,11 +159,12 @@ fun GrowthScreen(viewModel: AppViewModel) {
             Box(
                 modifier = Modifier
                     .size(200.dp)
-                    .background(Color.LightGray, shape = CircleShape)
-                    .clickable { showPopup = true },
+                    .background(Color.White, shape = CircleShape)
+                    .clickable { showPopup = true }
+                    .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(painter = painterResource(id = treeImage), contentDescription = null, modifier = Modifier.size(100.dp))
+                Image(painter = painterResource(id = treeImage), contentDescription = null, modifier = Modifier.size(100.dp))
             }
 
             Text(text = formatTime(timeLeftSeconds), fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
@@ -223,6 +224,7 @@ fun GrowthScreen(viewModel: AppViewModel) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss: () -> Unit, onConfirm: (String, Tree?, Int, String) -> Unit) {
     var selectedTree by remember { mutableStateOf<Tree?>(null) }
@@ -232,7 +234,33 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     var selectedColor by remember { mutableStateOf(0) }
-    val colorOptions = listOf(Color.Green, Color.Red, Color.Yellow, Color.Blue, Color.Magenta)
+    val colorOptions = listOf(
+        Color(0xFF98FB98), // 연두색 (Light Green) -> 0
+        Color(0xFF006400), // 진한녹색 (Dark Green) -> 1
+        Color(0xFFFFFF00), // 노란색 (Yellow) -> 2
+        Color(0xFFFFC0CB), // 핑크색 (Pink) -> 3
+        Color(0xFFFF0000), // 빨간색 (Red) -> 4
+        Color(0xFF800080), // 보라색 (Purple) -> 5
+        Color(0xFFFFFFFF)  // 하얀색 (White) -> 6
+    )
+
+    var defaultColor by remember { mutableStateOf(true) }
+    var greenColor by remember { mutableStateOf(false) }
+    var yellowColor by remember { mutableStateOf(false) }
+    var pinkColor by remember { mutableStateOf(false) }
+    var redColor by remember { mutableStateOf(false) }
+    var purpleColor by remember { mutableStateOf(false) }
+    var whiteColor by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.getUserById(1)
+        greenColor = viewModel.user.value?.colorGreen ?: false
+        yellowColor = viewModel.user.value?.colorYellow ?: false
+        pinkColor = viewModel.user.value?.colorPink ?: false
+        redColor = viewModel.user.value?.colorRed ?: false
+        purpleColor = viewModel.user.value?.colorPurple ?: false
+        whiteColor = viewModel.user.value?.colorWhite ?: false
+    }
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
@@ -246,36 +274,40 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
             ) {
                 Text("Select Tree", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
 
-                treeList.forEach { tree ->
-                    Text(
-                        text = tree.name,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectedTree = tree }
-                            .background(if (selectedTree == tree) Color.LightGray else Color.Transparent)
-                            .padding(8.dp)
-                    )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp)) // Thicker border around the entire group
+                        .padding(6.dp)
+                ) {
+                    Column {
+                        treeList.forEach { tree ->
+                            Text(
+                                text = tree.name,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { selectedTree = tree }
+                                    .background(if (selectedTree == tree) Color.White else Color.Transparent)
+                                    .padding(6.dp)
+                            )
+                        }
+                    }
                 }
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    colorOptions.forEachIndexed { index, color ->
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(color, shape = RoundedCornerShape(8.dp))
-                                .clickable { selectedColor = index + 1 }
-                                .border(
-                                    width = if (selectedColor == index + 1) 2.dp else 0.dp,
-                                    color = if (selectedColor == index + 1) Color.Black else Color.Transparent,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                .padding(8.dp)
-                        )
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    FlowRow(
+                        modifier = Modifier.widthIn(max = 300.dp) // Adjust max width as needed
+                    ) {
+                        if (defaultColor) ColorBox(colorOptions[0], 0, selectedColor, { selectedColor = it })
+                        if (greenColor) ColorBox(colorOptions[1], 1, selectedColor, { selectedColor = it })
+                        if (yellowColor) ColorBox(colorOptions[2], 2, selectedColor, { selectedColor = it })
+                        if (pinkColor) ColorBox(colorOptions[3], 3, selectedColor, { selectedColor = it })
+                        if (redColor) ColorBox(colorOptions[4], 4, selectedColor, { selectedColor = it })
+                        if (purpleColor) ColorBox(colorOptions[5], 5, selectedColor, { selectedColor = it })
+                        if (whiteColor) ColorBox(colorOptions[6], 6, selectedColor, { selectedColor = it })
                     }
                 }
 
@@ -292,7 +324,6 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                             time = result
                             if(digitsOnly.length == 4){
                                 val parts = time.text.split(":").map { it.toInt() }
-                                //errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] < 30)) {
                                 errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] == 0)) {
                                     "시간은 3시간 이하, 30분 이상이여야 합니다."
                                 } else {
@@ -349,6 +380,21 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
             }
         }
     }
+}
+
+@Composable
+fun ColorBox(color: Color, colorIndex: Int, selectedColor: Int, onColorSelected: (Int) -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .background(color, shape = RoundedCornerShape(8.dp))
+            .clickable { onColorSelected(colorIndex) }
+            .border(
+                width = if (selectedColor == colorIndex) 2.dp else 0.dp,
+                color = if (selectedColor == colorIndex) Color.Black else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
+    )
 }
 
 fun TextFieldValue.cursorToEnd(): TextFieldValue {
