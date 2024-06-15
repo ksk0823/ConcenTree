@@ -53,8 +53,6 @@ import kotlin.math.roundToInt
 data class Tile(val x: Int, val y: Int, val resourceId: Int)
 data class TreeData(val id: Int, val x: Int, val y: Int, val s: Int, val forestid : Int, var onForest:Boolean)
 
-data class ForestData(var trees: List<TreeData>, val id: Int)
-
 private const val TILE_WIDTH = 100
 private const val TILE_HEIGHT = 60
 
