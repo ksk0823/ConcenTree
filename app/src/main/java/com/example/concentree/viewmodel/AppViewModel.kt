@@ -1,6 +1,8 @@
 package com.example.concentree.viewmodel
 
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -57,6 +59,20 @@ class AppViewModel(private val phraseRepository: PhraseRepository,
             getUserById(1)
         }
     }
+
+
+    private val _forestTreeListLJW = MutableLiveData<List<ForestTree>>()
+    val forestTreeListLJW: LiveData<List<ForestTree>> = _forestTreeListLJW
+
+    fun getForestTreeListLJW(startTime: LocalDateTime, endTime: LocalDateTime) {
+        // Perform your data fetching logic here
+        viewModelScope.launch {
+            _forestTreeListLJW.value = forestTreeRepository.getTreesInRange(startTime, endTime)
+        }
+    }
+
+
+
 
     // Phrase
 

@@ -84,18 +84,6 @@ fun ShopScreen(appViewModel: AppViewModel) {
             appViewModel.getTreesInShop() // getTreesInShop() 메서드 호출
             val trees by appViewModel.treeList.collectAsState(initial = emptyList()) // List<Tree>
 
-
-//        Button(onClick = {
-//        // TODO: 테스트용 데이터 넣는부분 시작 나중에 꼭 지우기
-//            for(i in 1..10) {
-//                val tt = Tree(i, "ㅁㄴㅁㄴ", "ㅂㅈㅂㅈ", 100, true)
-//                appViewModel.InsertTree(tt)
-//            }
-//
-//            // TODO: 테스트용 데이터 넣는부분 끝 나중에 꼭 지우기
-//        }) {
-//         Text(text = "as")
-//        }
             var colorsT = listOf<Tree>()
 
             user?.let {
@@ -244,7 +232,15 @@ private fun CatItem(it: Tree, onClick: () -> Unit) {
         else -> R.drawable.sapling_0
     }
 
-
+    val color = when(it.name) {
+        "Pink" -> Color(0xFFFFC0CB)
+        "Green" -> Color.Green
+        "Yellow" -> Color.Yellow
+        "Red" -> Color.Red
+        "Purple" -> Color.Magenta
+        "White" -> Color.White
+        else -> Color.Gray
+    }
     Column(
         modifier = Modifier.clickable {
             if (!it.isPurchased) {
@@ -256,10 +252,12 @@ private fun CatItem(it: Tree, onClick: () -> Unit) {
             contentAlignment = Alignment.TopStart,
             modifier = Modifier
                 .size(107.dp)
-                .background(color = Color.Gray, shape = RoundedCornerShape(8.dp))
+                .background(color = color, shape = RoundedCornerShape(8.dp))
         ) {
             if (it.description != "color") {
-                Image(painter = painterResource(id = image), contentDescription = "", modifier = Modifier.fillMaxWidth().padding(20.dp))
+                Image(painter = painterResource(id = image), contentDescription = "", modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp))
             }
             if (it.isPurchased) {
                 Text(
