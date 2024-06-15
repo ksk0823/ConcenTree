@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -176,8 +177,9 @@ fun GrowthScreen(viewModel: AppViewModel) {
                 )
             }
 
-            Text(text = formatTime(timeLeftSeconds), fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
-            Button(onClick = {
+            Text(text = formatTime(timeLeftSeconds), fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
+            Button(modifier = Modifier.size(112.dp, 60.dp),
+                onClick = {
                 if(treeStage == 0){
                     // 중단 눌렀으니 초기화만 해주기
                     initSeconds = 0
@@ -212,7 +214,7 @@ fun GrowthScreen(viewModel: AppViewModel) {
                     timerStarted = false
                 }
             }) {
-                Text(text = buttonText)
+                Text(text = buttonText, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
             }
         }
 
@@ -296,7 +298,7 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { selectedTree = tree }
-                                    .background(if (selectedTree == tree) Color.White else Color.Transparent)
+                                    .background(if (selectedTree == tree) MaterialTheme.colorScheme.surfaceTint else Color.Transparent)
                                     .padding(6.dp)
                             )
                         }
