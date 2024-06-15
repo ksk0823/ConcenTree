@@ -40,6 +40,7 @@ fun GrowthScreen(viewModel: AppViewModel) {
     var initSeconds by remember { mutableStateOf(0) }
     var buttonText by remember { mutableStateOf("중지") }
     var showPopup by remember { mutableStateOf(false) }
+    var showCompletionPopup by remember { mutableStateOf(false) } // 추가된 부분
     var treeImage by remember { mutableStateOf(R.drawable.plus) }
     var treeStage by remember { mutableStateOf(0) }
     var timerStarted by remember { mutableStateOf(false) }
@@ -170,50 +171,51 @@ fun GrowthScreen(viewModel: AppViewModel) {
                 Image(painter = painterResource(id = treeImage), contentDescription = null,
                     modifier = Modifier.size(
                         when {
-                        initSeconds == 0 -> 100.dp
-                        treeStage == 0 -> 50.dp
-                        else -> 150.dp
-                    })
+                            initSeconds == 0 -> 100.dp
+                            treeStage == 0 -> 50.dp
+                            else -> 150.dp
+                        })
                 )
             }
 
             Text(text = formatTime(timeLeftSeconds), fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
             Button(modifier = Modifier.size(112.dp, 60.dp),
                 onClick = {
-                if(treeStage == 0){
-                    // 중단 눌렀으니 초기화만 해주기
-                    initSeconds = 0
-                    timeLeftSeconds = 0
-                    timerStarted = false
-                }
-                else{
-                    val endTime = LocalDateTime.now()
-                    settingId = settingTree.id
-                    val newForestTree = ForestTree(
-                        treeId = settingId,
-                        startTime = startTime,
-                        endTime = endTime,
-                        treeStage = treeStage,
-                        onForest = false,
-                        taskDescription = settingDescription,
-                        xPosition = 0,
-                        yPosition = 0,
-                        forestId = 0,
-                        color = settingColor
-                    )
-                    // ForestTree DB에 추가
-                    viewModel.insertForestTree(newForestTree)
-                    // User coins 업데이트
-                    user?.let { user ->
-                        val updatedCoins = user.coins + 10 * (newForestTree.treeStage)
-                        viewModel.updateUserCoins(user.id, updatedCoins)
+                    if(treeStage == 0){
+                        // 중단 눌렀으니 초기화만 해주기
+                        initSeconds = 0
+                        timeLeftSeconds = 0
+                        timerStarted = false
                     }
-                    // 완료 눌렀으니 초기화 해주기
-                    initSeconds = 0
-                    timeLeftSeconds = 0
-                    timerStarted = false
-                }
-            }) {
+                    else{
+                        val endTime = LocalDateTime.now()
+                        settingId = settingTree.id
+                        val newForestTree = ForestTree(
+                            treeId = settingId,
+                            startTime = startTime,
+                            endTime = endTime,
+                            treeStage = treeStage,
+                            onForest = false,
+                            taskDescription = settingDescription,
+                            xPosition = 0,
+                            yPosition = 0,
+                            forestId = 0,
+                            color = settingColor
+                        )
+                        // ForestTree DB에 추가
+                        viewModel.insertForestTree(newForestTree)
+                        // User coins 업데이트
+                        user?.let { user ->
+                            val updatedCoins = user.coins + 10 * (newForestTree.treeStage)
+                            viewModel.updateUserCoins(user.id, updatedCoins)
+                        }
+                        // 완료 눌렀으니 초기화 해주기
+                        initSeconds = 0
+                        timeLeftSeconds = 0
+                        timerStarted = false
+                        showCompletionPopup = true // 팝업 표시
+                    }
+                }) {
                 Text(text = buttonText, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
             }
         }
@@ -231,6 +233,10 @@ fun GrowthScreen(viewModel: AppViewModel) {
                 settingColor = selectedColor
                 settingDescription = description
             })
+        }
+
+        if (showCompletionPopup) {
+            CompletionPopup(onDismiss = { showCompletionPopup = false })
         }
     }
 }
@@ -335,6 +341,7 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                             time = result
                             if(digitsOnly.length == 4){
                                 val parts = time.text.split(":").map { it.toInt() }
+                                //errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] < 30)) {
                                 errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] == 0)) {
                                     "시간은 3시간 이하, 30분 이상이여야 합니다."
                                 } else {
@@ -431,4 +438,25 @@ fun formatTime(seconds: Int): String {
 fun timeToSeconds(time: String): Int {
     val parts = time.split(":").map { it.toInt() }
     return parts[0] * 3600 + parts[1] * 60
+}
+
+@Composable
+fun CompletionPopup(onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.background,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("나무 육성이 완료되었습니다", fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
+                Button(onClick = { onDismiss() }) {
+                    Text("확인")
+                }
+            }
+        }
+    }
 }

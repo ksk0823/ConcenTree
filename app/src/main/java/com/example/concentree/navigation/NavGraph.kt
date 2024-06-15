@@ -6,12 +6,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.concentree.screens.ChartScreen
 import com.example.concentree.screens.ForestScreen
+import com.example.concentree.screens.GrowthScreen
+import com.example.concentree.screens.SettingScreen
 import com.example.concentree.screens.ShopScreen
 import com.example.concentree.viewmodel.AppViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController, viewModel : AppViewModel) {
-    NavHost(navController = navController, startDestination = "Forest") {
+    NavHost(navController = navController, startDestination = "Growth") {
         composable("Shop") {
             ShopScreen(viewModel)
         }
@@ -19,13 +21,13 @@ fun NavGraph(navController: NavHostController, viewModel : AppViewModel) {
             ForestScreen(viewModel)
         }
         composable("Growth") {
-//            GrowthScreen(viewModel)
+            GrowthScreen(viewModel)
         }
         composable("Chart") {
             ChartScreen(viewModel)
         }
         composable("Setting") {
-//            SettingScreen(viewModel)
+            SettingScreen(viewModel)
         }
     }
 }
