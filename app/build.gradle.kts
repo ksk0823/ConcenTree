@@ -69,6 +69,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.0-beta02")
     implementation("com.patrykandpatrick.vico:compose:2.0.0-alpha.21")
     implementation("com.google.accompanist:accompanist-flowlayout:0.35.1-alpha")
+    implementation("androidx.compose.runtime:runtime-livedata:1.7.0-beta03")
     kapt("androidx.room:room-compiler:2.7.0-alpha02")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

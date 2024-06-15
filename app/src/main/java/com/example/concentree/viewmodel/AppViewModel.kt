@@ -39,6 +39,9 @@ class AppViewModel(private val phraseRepository: PhraseRepository,
     private val _treeList = MutableStateFlow<List<Tree>>(emptyList())
     val treeList = _treeList.asStateFlow()
 
+    private val _tree = MutableStateFlow<Tree?>(null)
+    val tree = _tree.asStateFlow()
+
     private val _user = MutableStateFlow<User?>(null)
     val user = _user.asStateFlow()
 
@@ -159,6 +162,14 @@ class AppViewModel(private val phraseRepository: PhraseRepository,
             }
         }
     }
+
+    fun getTreeById(id: Int) {
+        viewModelScope.launch {
+            _tree.value = treeRepository.getTreeById(id)
+        }
+    }
+
+
     fun UpdateTree(tree: Tree){
         viewModelScope.launch {
             treeRepository.UpdateTree(tree)

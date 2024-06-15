@@ -1,7 +1,9 @@
 package com.example.concentree.screens
 
+import android.widget.CalendarView
 import android.widget.Space
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollable
@@ -38,7 +40,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,13 +66,18 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import com.patrykandpatrick.vico.*
+import java.time.LocalDateTime
+import java.time.LocalTime
+import androidx.compose.runtime.livedata.*
+import androidx.compose.ui.platform.LocalContext
+
 
 @Composable
 fun ChartScreen(appViewModel:AppViewModel) {
     val currentYear = remember { mutableStateOf(LocalDate.now().year) }
     val currentMonth = remember { mutableStateOf(LocalDate.now().monthValue) }
 
-    val testvalue = remember {
+    val selectedDate = remember {
         mutableStateOf(LocalDate.now())
     }
 
@@ -77,66 +86,58 @@ fun ChartScreen(appViewModel:AppViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-//        Text(
-//            text = "ChartScreen",
-//            fontSize = 40.sp,
-//        )
 
 
-    CalendarView(testvalue)
+    CalendarView(selectedDate)
 
 
-            val testData = listOf(
-                LogEntry(date = LocalDate.now().minusDays(3).toEpochDay(), value = 10, name = "일"),
-                LogEntry(date = LocalDate.now().minusDays(2).toEpochDay(), value = 20, name = "월"),
-                LogEntry(date = LocalDate.now().minusDays(1).toEpochDay(), value = 1, name = "화"),
-                LogEntry(date = LocalDate.now().toEpochDay(), value = 25, name = "수"),
-                LogEntry(date = LocalDate.now().plusDays(1).toEpochDay(), value = 30, name = "목"),
-                LogEntry(date = LocalDate.now().plusDays(2).toEpochDay(), value = 5, name = "금"),
-                LogEntry(date = LocalDate.now().plusDays(3).toEpochDay(), value = 12, name = "토")
-            )
-            BarChart(testData)
+        var startOfWeek = selectedDate.value.with(DayOfWeek.MONDAY)
+        var lastSun = startOfWeek.minusDays(1)
+        var weekDatesWithTimes = (0..6).map {
+            val date = lastSun.plusDays(it.toLong())
+            val startOfDay = LocalDateTime.of(date, LocalTime.MIN)  // 00:00
+            val endOfDay = LocalDateTime.of(date, LocalTime.MAX)  // 23:59
+            startOfDay to endOfDay
+        }
+
+        val forest = remember { mutableStateListOf<List<ForestTree>>() }
+
+            forest.clear()
+
+            for (i in 0..6) {
+                val start = weekDatesWithTimes[i].first
+                val end = weekDatesWithTimes[i].second
+
+                appViewModel.getTreesInRange(start, end)
+                val temp = appViewModel.forestTreeList.collectAsState(initial = null).value
+
+                temp?.let { forest.add(it) }
+            }
+
+        
+         // var forest가지고 밑의 리스트 만들기
+
+            BarChart(forest)
 
             Spacer(modifier = Modifier.height(30.dp))
 
+        val i = when(selectedDate.value.dayOfWeek) {
+            DayOfWeek.SUNDAY -> 0
+            DayOfWeek.MONDAY -> 1
+            DayOfWeek.TUESDAY -> 2
+            DayOfWeek.WEDNESDAY -> 3
+            DayOfWeek.THURSDAY -> 4
+            DayOfWeek.FRIDAY -> 5
+            DayOfWeek.SATURDAY -> 6
+        }
             // 테스트용
+        if(forest.size >= i+1) {
             LazyColumn() {
-                items(4) {
-
-
-                Row(
-                    modifier = Modifier
-                        .padding(10.dp, 0.dp, 10.dp, 0.dp)
-                        .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Box(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(36.dp)
-                            .background(Color.Black)
-                    ) {}
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "사과나무", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Icon(
-                                painterResource(id = R.drawable.baseline_access_time_24),
-                                contentDescription = "",
-                                tint = colorResource(
-                                    id = R.color.palette3
-                                ),
-                                modifier = Modifier.size(12.dp)
-                            )
-                            Text(text = "1:13", fontSize = 12.sp)
-                        }
-                        Text(text = "내용내용", fontSize = 12.sp)
-                    }
-                }
+                items(forest[i]) {
+                    LogItem(it = it, appViewModel = appViewModel)
                 }
             }
-
+        }
 //        appViewModel.getTreesInRange() // LocalDateTime
         // 우선 오늘 날짜 구해서 오늘에 해당하는 달력 보여주기ㅏ
     }
@@ -237,8 +238,17 @@ fun DaysOfWeekHeader() {
 }
 
 @Composable
-fun BarChart(entries: List<LogEntry>) {
-    val maxValue = (entries.maxOfOrNull { it.value } ?: 0).toFloat()
+fun BarChart(entries: List<List<ForestTree>>) {
+    var maxValue:Double = 0.0
+    entries.map {
+        var sum:Double = 0.0
+        it.map {
+            sum += it.endTime.second-it.startTime.second
+        }
+        if(maxValue < sum) {
+            maxValue = sum
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -248,55 +258,87 @@ fun BarChart(entries: List<LogEntry>) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom
     ) {
-        entries.forEach { entry ->
+        entries.forEachIndexed { index, entry ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            val heightFraction = entry.value / maxValue
-            Box(
-                modifier = Modifier
-                    .height(((200 - 24) * heightFraction).dp)
-                    .width(20.dp)
-                    .background(Color.Green)
-            )
-                Text(entry.name, modifier = Modifier.height(24.dp))
+                var heightFraction = 0.0
+                if (maxValue != 0.0) {
+                    var sum = 0
+                    entry.map {
+                        sum += it.endTime.second-it.startTime.second
+                    }
+                    heightFraction = sum / maxValue
+                }
+
+                Box(
+                    modifier = Modifier
+                        .height(((200 - 24) * heightFraction).dp)
+                        .width(20.dp)
+                        .background(Color.Green)
+                )
+
+                val dayOfWeekText = when (index+1) {
+                    1 -> "일"
+                    2 -> "월"
+                    3 -> "화"
+                    4 -> "수"
+                    5 -> "목"
+                    6 -> "금"
+                    7 -> "토"
+                    else -> ""
+                }
+                Text(text = dayOfWeekText, modifier = Modifier.height(24.dp))
             }
         }
     }
 }
 @Composable
-fun LogList(entries: List<LogEntry>) {
-    LazyColumn {
-        items(entries) { entry ->
-            Text(text = "Date: ${entry.date}, Value: ${entry.value}")
-        }
-    }
-}
-
-data class LogEntry(
-    val id: Int = 0,
-    val date: Long,
-    val value: Int,
-    val name:String
-)
-@Composable
-fun LogItem(it: ForestTree) {
+fun LogItem(it: ForestTree, appViewModel: AppViewModel) {
     Row(modifier = Modifier
         .padding(10.dp, 0.dp, 10.dp, 0.dp)
         .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Box(modifier = Modifier
-            .width(24.dp)
-            .height(36.dp)
-            .background(Color.Black)) { }
+
+        var image:Int = R.drawable.sapling_0
+        appViewModel.getTreeById(it.treeId)
+        val treeId = appViewModel.tree.collectAsState(null)
+        treeId.let {item ->
+            val treeName = when(item.value!!.id) {
+            0 -> "apple"
+            1 -> "birch"
+            2 -> "cedar"
+            3 -> "fir"
+            4 -> "maple"
+            5 -> "pine"
+            6 -> "spruce"
+            else -> ""
+        }
+            val stage = it.treeStage
+
+            val color = it.color
+
+            val context = LocalContext.current
+            image = context.resources.getIdentifier("${treeName}_level${stage}_${color}", "drawable", context.packageName)
+        }
+
+        Image(painter = painterResource(id = image), contentDescription = "", modifier = Modifier.height(36.dp))
+
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "사과나무", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(painterResource(id = R.drawable.baseline_access_time_24), contentDescription = "", tint = colorResource(
-                    id = R.color.palette3
-                ), modifier = Modifier.size(12.dp))
-                Text(text = "1:13", fontSize = 12.sp)
+                appViewModel.getTreeById(it.treeId)
+                val treeId = appViewModel.tree.collectAsState(null)
+                treeId.let {item ->
+                    Text(text = item.value!!.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(painterResource(id = R.drawable.baseline_access_time_24), contentDescription = "", tint = colorResource(
+                        id = R.color.palette3
+                    ), modifier = Modifier.size(12.dp))
+
+                    val total = it.endTime.minute - it.startTime.minute
+
+                    Text(text = total.toString(), fontSize = 12.sp)
+                }
             }
-            Text(text = "내용내용", fontSize = 12.sp)
+            Text(text = it.taskDescription, fontSize = 12.sp)
         }
     }
 }
