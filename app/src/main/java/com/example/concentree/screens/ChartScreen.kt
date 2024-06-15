@@ -90,31 +90,31 @@ fun ChartScreen(appViewModel:AppViewModel) {
     val forest = remember { mutableStateListOf<List<ForestTree>>() }
 
 
-//    val forestTreeList by appViewModel.forestTreeListLJW.observeAsState(initial = emptyList())
-//
-//    LaunchedEffect(selectedDate.value) {
-//        val startOfWeek = selectedDate.value.with(DayOfWeek.MONDAY).minusDays(1)
-//        val endOfWeek = selectedDate.value.with(DayOfWeek.SATURDAY)
-//        Log.d("qwqw", "${startOfWeek} -> ${endOfWeek}")
-//        Log.d("qwqw", "${LocalDateTime.of(startOfWeek, LocalTime.MIN)} -> ${LocalDateTime.of(endOfWeek, LocalTime.MAX)}")
-//        appViewModel.getTreesInRange(
-//            LocalDateTime.of(startOfWeek, LocalTime.MIN),
-//            LocalDateTime.of(endOfWeek, LocalTime.MAX)
-//        )
-//    }
+    val forestTreeList by appViewModel.forestTreeListLJW.observeAsState(initial = emptyList())
 
-    val forestTreeList = listOf(ForestTree(
-        treeId = 1,  // Ensure this treeId exists in the Tree table
-        startTime = LocalDateTime.now().minusHours(2),
-        endTime = LocalDateTime.now(),
-        treeStage = 2,
-        onForest = true,
-        taskDescription = "Pruning",
-        xPosition = 20,
-        yPosition = 25,
-        forestId = 1,
-        color = 2
-    ))
+    LaunchedEffect(selectedDate.value) {
+        val startOfWeek = selectedDate.value.with(DayOfWeek.MONDAY).minusDays(1)
+        val endOfWeek = selectedDate.value.with(DayOfWeek.SATURDAY)
+        Log.d("qwqw", "${startOfWeek} -> ${endOfWeek}")
+        Log.d("qwqw", "${LocalDateTime.of(startOfWeek, LocalTime.MIN)} -> ${LocalDateTime.of(endOfWeek, LocalTime.MAX)}")
+        appViewModel.getForestTreeListLJW(
+            LocalDateTime.of(startOfWeek, LocalTime.MIN),
+            LocalDateTime.of(endOfWeek, LocalTime.MAX)
+        )
+    }
+
+//    val forestTreeList = listOf(ForestTree(
+//        treeId = 1,  // Ensure this treeId exists in the Tree table
+//        startTime = LocalDateTime.now().minusHours(2),
+//        endTime = LocalDateTime.now(),
+//        treeStage = 2,
+//        onForest = true,
+//        taskDescription = "Pruning",
+//        xPosition = 20,
+//        yPosition = 25,
+//        forestId = 1,
+//        color = 2
+//    ))
 
     Log.d("qwqw", forestTreeList.toString())
 
