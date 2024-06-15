@@ -115,7 +115,9 @@ fun GrowthScreen(viewModel: AppViewModel) {
         }
         else if(initSeconds * 2/3 < timeLeftSeconds)  {
             treeStage = 0
-            treeImage = R.drawable.seed
+            val imgFindString = "sapling_"+settingColor
+            val imageResourceId = context.resources.getIdentifier(imgFindString, "drawable", context.packageName)
+            treeImage =  imageResourceId
         }
         else if(initSeconds == 0){
             treeStage = 0
@@ -164,7 +166,14 @@ fun GrowthScreen(viewModel: AppViewModel) {
                     .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Image(painter = painterResource(id = treeImage), contentDescription = null, modifier = Modifier.size(100.dp))
+                Image(painter = painterResource(id = treeImage), contentDescription = null,
+                    modifier = Modifier.size(
+                        when {
+                        initSeconds == 0 -> 100.dp
+                        treeStage == 0 -> 50.dp
+                        else -> 150.dp
+                    })
+                )
             }
 
             Text(text = formatTime(timeLeftSeconds), fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp))
