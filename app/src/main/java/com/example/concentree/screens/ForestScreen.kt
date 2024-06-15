@@ -57,7 +57,6 @@ data class ForestData(var trees: List<TreeData>, val id: Int)
 
 private const val TILE_WIDTH = 100
 private const val TILE_HEIGHT = 60
-private const val BUTTON_OFFSET_Y = -40
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -127,13 +126,14 @@ fun ForestScreen(viewModel: AppViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .offset(y = 30.dp)
             ) {
                 Button(
                     onClick = { if (forestIndex > 0) forestIndex-- },
                     modifier = Modifier.weight(1f)
                 ) {
                     Image(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.treetype1_level1),
+                        imageVector = ImageVector.vectorResource(id = R.drawable.baseline_keyboard_double_arrow_left_24),
                         contentDescription = "previous forest"
                     )
                 }
@@ -143,7 +143,7 @@ fun ForestScreen(viewModel: AppViewModel) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Image(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.treetype1_level2),
+                        imageVector = ImageVector.vectorResource(id = R.drawable.baseline_keyboard_double_arrow_right_24),
                         contentDescription = "next forest"
                     )
                 }
@@ -173,11 +173,11 @@ fun ForestScreen(viewModel: AppViewModel) {
                             ) { newTreeData ->
                                 // Update the tree in the forest
                                 trees[newTreeData.id] = newTreeData
+                                currentTree = null
                             }
                         }
                     currentTree?.let {
                         FloatingButton(
-                            tree = it,
                             isDragging = isDragging,
                             onMoveToggle = {
                                 isDragging = !isDragging
@@ -207,7 +207,8 @@ fun ForestScreen(viewModel: AppViewModel) {
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(4),
-                modifier = Modifier.offset(0.dp, 550.dp)
+                modifier = Modifier
+                    .offset(0.dp, 550.dp)
                     .size(400.dp, 200.dp)
             ) {
                 // Filter and get tree IDs that are not in the forest
@@ -233,18 +234,22 @@ fun ForestScreen(viewModel: AppViewModel) {
                                             onForest = true,
                                             forestid = forestIndex
                                         )
-                                        trees = trees.toMutableList().apply {
-                                            set(treeIndex, updatedTree)
-                                        }
+                                        trees = trees
+                                            .toMutableList()
+                                            .apply {
+                                                set(treeIndex, updatedTree)
+                                            }
                                     }
                                 } else {
                                     // Show a message indicating no available spots
                                     scope.launch {
-                                        Toast.makeText(
-                                            context,
-                                            "No available spot to plant the tree in the current forest.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                "No available spot to plant the tree in the current forest.",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                            .show()
                                     }
                                 }
                             }
@@ -306,10 +311,18 @@ fun Tree(
     onLongPress: () -> Unit,
     onUpdateTree: (TreeData) -> Unit
 ) {
-    var offsetX by remember { mutableFloatStateOf(((treeData.x - treeData.y) * TILE_WIDTH).toFloat()) }
-    var offsetY by remember { mutableFloatStateOf(((treeData.x + treeData.y) * TILE_HEIGHT).toFloat()) }
+    val initialOffsetX = remember(treeData.x, treeData.y) { ((treeData.x - treeData.y) * TILE_WIDTH).toFloat() }
+    val initialOffsetY = remember(treeData.x, treeData.y) { ((treeData.x + treeData.y) * TILE_HEIGHT).toFloat() }
+
+    var offsetX by remember { mutableFloatStateOf(initialOffsetX) }
+    var offsetY by remember { mutableFloatStateOf(initialOffsetY) }
     var prevX by remember { mutableFloatStateOf(offsetX) }
     var prevY by remember { mutableFloatStateOf(offsetY) }
+
+    LaunchedEffect(treeData.x, treeData.y) {
+        offsetX = ((treeData.x - treeData.y) * TILE_WIDTH).toFloat()
+        offsetY = ((treeData.x + treeData.y) * TILE_HEIGHT).toFloat()
+    }
 
     Box(
         modifier = Modifier
@@ -325,8 +338,10 @@ fun Tree(
                             prevY = offsetY
                         },
                         onDragEnd = {
-                            val tileX = (((offsetX / TILE_WIDTH) + (offsetY / TILE_HEIGHT)) * 0.5f).roundToInt()
-                            val tileY = ((-(offsetX / TILE_WIDTH) + (offsetY / TILE_HEIGHT)) * 0.5f).roundToInt()
+                            val tileX =
+                                (((offsetX / TILE_WIDTH) + (offsetY / TILE_HEIGHT)) * 0.5f).roundToInt()
+                            val tileY =
+                                ((-(offsetX / TILE_WIDTH) + (offsetY / TILE_HEIGHT)) * 0.5f).roundToInt()
                             val range = 0 until 5
 
                             if (tileX in range && tileY in range) {
@@ -370,36 +385,41 @@ fun Tree(
 
 
 @Composable
-fun FloatingButton(tree: TreeData, isDragging: Boolean, onMoveToggle: () -> Unit, onDelete: () -> Unit) {
+fun FloatingButton(isDragging: Boolean, onMoveToggle: () -> Unit, onDelete: () -> Unit) {
 
     Row(
         modifier = Modifier
             .size(200.dp)
-            .offset { IntOffset(((tree.x - tree.y) * TILE_WIDTH - 150), ((tree.x + tree.y) * TILE_HEIGHT - 150)) }
+            .offset { IntOffset(-150, 900) }
     ) {
-        Button(
-            modifier = Modifier.weight(1f),
-            onClick = {
-                onMoveToggle()
+        if(!isDragging) {
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    onMoveToggle()
+                }
+            ) {
+                Image(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_arrow_circle_up_24),
+                    contentDescription = ""
+                )
             }
-        ) {
-            val id = if (!isDragging) R.drawable.baseline_arrow_circle_up_24 else R.drawable.baseline_arrow_circle_down_24
-            Image(
-                imageVector = ImageVector.vectorResource(id = id),
-                contentDescription = ""
-            )
+            Spacer(modifier = Modifier.weight(0.4f))
+            Button(
+                modifier = Modifier.weight(1f),
+                onClick = {
+                    onDelete()
+                }
+            ) {
+                Image(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_delete_24),
+                    contentDescription = ""
+                )
+            }
         }
-        Spacer(modifier = Modifier.weight(0.4f))
-        Button(
-            modifier = Modifier.weight(1f),
-            onClick = {
-                onDelete()
-            }
-        ) {
-            Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.baseline_delete_24),
-                contentDescription = ""
-            )
+        else{
+            Text(text = "Now Moving...",
+                modifier = Modifier.offset(50.dp))
         }
     }
 }
