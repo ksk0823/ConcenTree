@@ -332,7 +332,6 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth(),
