@@ -308,6 +308,9 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                                     .padding(6.dp)
                             )
                         }
+                        if(selectedTree == null){
+                            selectedTree = treeList[0]
+                        }
                     }
                 }
 

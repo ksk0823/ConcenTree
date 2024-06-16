@@ -142,9 +142,11 @@ fun ShopScreen(appViewModel: AppViewModel) {
                 .padding(0.dp, 60.dp, 40.dp, 0.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.baseline_attach_money_24),
-                contentDescription = "dollar sign",
-                modifier = Modifier.size(30.dp)
+//                painter = painterResource(id = R.drawable.baseline_attach_money_24),
+//                contentDescription = "dollar sign",
+                painter = painterResource(id = R.drawable.coin),
+                contentDescription = "coin icon",
+                modifier = Modifier.size(32.dp).padding(end = 10.dp).offset(0.dp, -4.dp)
             )
             Text(text = user?.coins.toString(), fontSize = 20.sp, modifier = Modifier.offset(-6.dp, 0.dp))
         }
