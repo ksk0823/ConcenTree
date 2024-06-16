@@ -93,8 +93,8 @@ fun ChartScreen(appViewModel:AppViewModel) {
     val forestTreeList by appViewModel.forestTreeListLJW.observeAsState(initial = emptyList())
 
     LaunchedEffect(selectedDate.value) {
-        val startOfWeek = selectedDate.value.with(DayOfWeek.MONDAY).minusDays(1)
-        val endOfWeek = selectedDate.value.with(DayOfWeek.SATURDAY)
+        val startOfWeek = selectedDate.value.with(DayOfWeek.MONDAY)
+        val endOfWeek = selectedDate.value.with(DayOfWeek.SUNDAY)
         Log.d("qwqw", "${startOfWeek} -> ${endOfWeek}")
         Log.d("qwqw", "${LocalDateTime.of(startOfWeek, LocalTime.MIN)} -> ${LocalDateTime.of(endOfWeek, LocalTime.MAX)}")
         appViewModel.getForestTreeListLJW(
@@ -222,6 +222,7 @@ fun ChartScreen(appViewModel:AppViewModel) {
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(forestTreeList) { forestTree ->
+                if(forestTree.startTime >= selectedDate.value.atStartOfDay() && forestTree.endTime < selectedDate.value.plusDays(1).atStartOfDay())
                 LogItem(forestTree, appViewModel, selectedDate?.value)
             }
         }
@@ -387,12 +388,12 @@ fun BarChart(entries: List<ForestTree>) {
     // 최대 값을 계산
     val maxValue = weekData.maxOfOrNull { dayList ->
         dayList.sumOf {
-            Log.d("qwqw", Duration.between(it.startTime, it.endTime).toMinutes().toString())
+//            Log.d("qwqw", Duration.between(it.startTime, it.endTime).toMinutes().toString())
             Duration.between(it.startTime, it.endTime).toMinutes()
         }
     } ?: 0
 
-    Log.d("qwqw", "maxValue = ${maxValue}")
+//    Log.d("qwqw", "maxValue = ${maxValue}")
 
     Row(
         modifier = Modifier
@@ -405,12 +406,12 @@ fun BarChart(entries: List<ForestTree>) {
         weekData.forEachIndexed { index, entry ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 val sum = entry.sumOf {
-                    Log.d("qwqw", "as: ${Duration.between(it.startTime, it.endTime).toMinutes()}")
+//                    Log.d("qwqw", "as: ${Duration.between(it.startTime, it.endTime).toMinutes()}")
                     Duration.between(it.startTime, it.endTime).toMinutes()
                 }
 
                 val heightFraction = if (maxValue.toInt() != 0) sum.toFloat() / maxValue else 0f
-                Log.d("qwqw", "Frac: $heightFraction")
+//                Log.d("qwqw", "Frac: $heightFraction")
                 Box(
                     modifier = Modifier
                         .height((128 * heightFraction).dp)
@@ -419,13 +420,13 @@ fun BarChart(entries: List<ForestTree>) {
                 )
 
                 val dayOfWeekText = when (index) {
-                    0 -> "일"
-                    1 -> "월"
-                    2 -> "화"
-                    3 -> "수"
-                    4 -> "목"
-                    5 -> "금"
-                    6 -> "토"
+                    0 -> "월"
+                    1 -> "화"
+                    2 -> "수"
+                    3 -> "목"
+                    4 -> "금"
+                    5 -> "토"
+                    6 -> "일"
                     else -> ""
                 }
                 Text(text = dayOfWeekText, modifier = Modifier.height(24.dp))
