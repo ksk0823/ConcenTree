@@ -65,19 +65,19 @@ fun MainScreen(navController: NavHostController) {
     val viewModel : AppViewModel = viewModel(factory =
     AppViewModelFactory(PhraseRepository(db), ForestTreeRepository(db), TreeRepository(db), UserRepository(db)))
     LaunchedEffect(Unit) {
-        /*val t0 = Tree(0, "apple", "사과나무", 300, true)
+        /*val t0 = Tree(0, "apple", "사과나무", 100, true)
         viewModel.InsertTree(t0)
-        val t1 = Tree(1, "birch", "자작나무", 300, true)
+        val t1 = Tree(1, "birch", "자작나무", 100, true)
         viewModel.InsertTree(t1)
-        val t2 = Tree(2, "cedar", "삼나무", 300, true)
+        val t2 = Tree(2, "cedar", "삼나무", 100, true)
         viewModel.InsertTree(t2)
-        val t3 = Tree(3, "fir", "전나무", 300, true)
+        val t3 = Tree(3, "fir", "전나무", 100, true)
         viewModel.InsertTree(t3)
-        val t4 = Tree(4, "maple", "단풍나무", 300, true)
+        val t4 = Tree(4, "maple", "단풍나무", 100, true)
         viewModel.InsertTree(t4)
-        val t5 = Tree(5, "pine", "소나무", 300, true)
+        val t5 = Tree(5, "pine", "소나무", 100, true)
         viewModel.InsertTree(t5)
-        val t6 = Tree(6, "spruce", "가문비나무", 300, true)
+        val t6 = Tree(6, "spruce", "가문비나무", 100, true)
         viewModel.InsertTree(t6)*/
     }
 
