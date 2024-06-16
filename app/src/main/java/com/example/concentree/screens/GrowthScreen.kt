@@ -348,7 +348,8 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                                 val parts = time.text.split(":").map { it.toInt() }
                                 //errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] < 30)) {
                                 errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] == 0)) {
-                                    "시간은 3시간 이하, 30분 이상이여야 합니다."
+                                    //"시간은 3시간 이하, 30분 이상이여야 합니다."
+                                    "시간은 3시간 이하여야 합니다."
                                 } else {
                                     null
                                 }
