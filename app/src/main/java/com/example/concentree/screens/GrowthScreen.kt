@@ -247,7 +247,7 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
     var selectedTree by remember { mutableStateOf<Tree?>(null) }
     var description by remember { mutableStateOf("") }
 
-    var time by remember { mutableStateOf(TextFieldValue("")) }
+    var time by remember { mutableStateOf(TextFieldValue("00:30")) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     var selectedColor by remember { mutableStateOf(0) }
@@ -341,6 +341,9 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                         if (digitsOnly.length <= 4) {
                             val result = digitsOnly.formatTimeAndMoveCursor()
                             time = result
+                            if(digitsOnly.length < 4){
+                                errorMessage = "정확한 값을 입력해주세요"
+                            }
                             if(digitsOnly.length == 4){
                                 val parts = time.text.split(":").map { it.toInt() }
                                 //errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] < 30)) {
