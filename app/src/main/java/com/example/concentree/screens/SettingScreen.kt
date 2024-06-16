@@ -30,6 +30,7 @@ fun SettingScreen(viewModel: AppViewModel) {
     var showHelpDialog by remember { mutableStateOf(false) }
     var showCreditsDialog by remember { mutableStateOf(false) }
 
+    var shownickname by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
     var newPhrase by remember { mutableStateOf("") }
     var phraseToEdit by remember { mutableStateOf<Phrase?>(null) }
@@ -49,6 +50,7 @@ fun SettingScreen(viewModel: AppViewModel) {
         viewModel.getAllPhrases()
         viewModel.getUserById(1)  // Assuming user ID 1 for the current user
         nickname = if (user != null) user?.username.toString() else ""
+        shownickname = nickname
     }
 
     Column(
@@ -69,7 +71,7 @@ fun SettingScreen(viewModel: AppViewModel) {
 
         // User Settings Box
         SettingCategoryBox(title = "사용자 설정") {
-            SettingItem(text = "닉네임 설정 [ 현재 닉네임 : ${nickname} ]") { showNicknameDialog = true }
+            SettingItem(text = "닉네임 설정 [ 현재 닉네임 : ${shownickname} ]") { showNicknameDialog = true }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -100,9 +102,13 @@ fun SettingScreen(viewModel: AppViewModel) {
                         viewModel.UpdateUser(it.copy(username = nickname))
                         viewModel.getUserById(1)
                     }
+                    shownickname = nickname
                     showNicknameDialog = false
                 },
-                onDismiss = { showNicknameDialog = false }
+                onDismiss = {
+                    nickname = ""
+                    showNicknameDialog = false
+                }
             )
         }
 
