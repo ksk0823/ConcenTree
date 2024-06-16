@@ -179,7 +179,10 @@ fun SettingScreen(viewModel: AppViewModel) {
         if (showHelpDialog) {
             InfoDialog(
                 title = "도움말",
-                message = "여기에 도움말 내용을 작성하세요.",
+                message = "\nGrowth에서 자신만의 나무를 키우고\n\n" +
+                        "Forest에서 나만의 숲을 키워보세요!\n\n" +
+                        "Shop에서 나무와 컬러를 구매하고\n\n" +
+                        "Chart에서 자신의 기록을 확인하세요.",
                 onDismiss = { showHelpDialog = false }
             )
         }
@@ -188,7 +191,9 @@ fun SettingScreen(viewModel: AppViewModel) {
         if (showCreditsDialog) {
             InfoDialog(
                 title = "크레딧",
-                message = "여기에 크레딧 내용을 작성하세요.",
+                message = "\n2팀 - ConcentTree\n\n" +
+                        "2024 1학기 모바일 프로그래밍\n" +
+                        "[고상진 김수경 이지원 임제형]",
                 onDismiss = { showCreditsDialog = false }
             )
         }
