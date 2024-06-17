@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,81 +24,63 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.concentree.R
+import com.example.concentree.roomDB.ForestTree
+import com.example.concentree.roomDB.Tree
 import com.example.concentree.viewmodel.AppViewModel
+import com.example.concentree.viewmodel.ForestTreeRepository
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import kotlin.math.roundToInt
 
 data class Tile(val x: Int, val y: Int, val resourceId: Int)
-data class TreeData(val id: Int, val x: Int, val y: Int, val s: Int, val forestid : Int, var onForest:Boolean)
 
 private const val TILE_WIDTH = 100
 private const val TILE_HEIGHT = 60
-
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun ForestScreen(viewModel: AppViewModel) {
-    LaunchedEffect(Unit) {
-        viewModel.getTreesInShop()
-    }
 
-    var trees by rememberSaveable {
-        mutableStateOf(
-            listOf(
-                TreeData(0, 0, 1, 1, 0, true),
-                TreeData(1, 0, 3, 2, 1, true),
-                TreeData(2, 2, 2, 3, 2, true),
-                TreeData(3, 1, 1, 2, 1, true),
-                TreeData(4, 2, 4, 2, 2, true),
-                TreeData(5, 2, 1, 3, 0, true),
-                TreeData(6, 3, 3, 3, 0, true),
-                TreeData(7, 2, 1, 1, 1, true),
-                TreeData(8, 2, 2, 0, 1, true),
-                TreeData(9, 0, 0, 1, 0, true),
-                TreeData(10, 1, 1, 1, 2, true),
-                TreeData(11, 0, 0, 1, -1, false),
-                TreeData(12, 0, 0, 1, -1, false),
-                TreeData(13, 0, 0, 1, -1, false),
-                TreeData(14, 0, 0, 1, -1, false),
-                TreeData(15, 0, 0, 1, -1, false),
-                TreeData(16, 0, 0, 1, -1, false),
-                TreeData(17, 0, 0, 1, -1, false),
-                TreeData(18, 0, 0, 1, -1, false),
-                TreeData(19, 0, 0, 1, -1, false),
-                TreeData(20, 0, 0, 1, -1, false),
-                TreeData(21, 0, 0, 1, -1, false),
-                TreeData(22, 0, 0, 1, -1, false),
-                TreeData(23, 0, 0, 1, -1, false),
-                TreeData(24, 0, 0, 1, -1, false),
-                TreeData(25, 0, 0, 1, -1, false),
+    viewModel.insertForestTree(ForestTree(
+        treeId = 1,
+        startTime = LocalDateTime.now().minusHours(2),
+        endTime = LocalDateTime.now(),
+        treeStage = 2,
+        onForest = true,
+        taskDescription = "Pruning",
+        xPosition = 0,
+        yPosition = 0,
+        forestId = 1,
+        color = 2)
+    )
 
-                ).toMutableList()
-        )
-    }
+    val trees by viewModel.forestTreeList.collectAsState(initial = emptyList())
+    val _tree by viewModel.tree.collectAsState(initial = null)
 
-    var currentTree by remember { mutableStateOf<TreeData?>(null) }
+    var currentTree by remember { mutableStateOf<ForestTree?>(null) }
     var isDragging by remember { mutableStateOf(false) }
     var forestIndex by remember { mutableIntStateOf(0) }
 
@@ -107,167 +90,193 @@ fun ForestScreen(viewModel: AppViewModel) {
         }
     }
 
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+
+
     Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                    ) {
-                        currentTree = null
-                    }
+        modifier = Modifier
+            .fillMaxSize()
+            //.background(Color.Red)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                ) {
+                    currentTree = null
+                    isDragging = false
                 }
-        ) {
-            Row(
+            }
+        )
+    {
+        Column()
+        {
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .offset(y = 30.dp)
-            ) {
-                Button(
-                    onClick = { if (forestIndex > 0) forestIndex-- },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Image(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.baseline_keyboard_double_arrow_left_24),
-                        contentDescription = "previous forest"
+                    //.background(Color.Blue)
+            )
+            {
+                Column {
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     )
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                Button(
-                    onClick = { if (forestIndex < 2) forestIndex++ },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Image(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.baseline_keyboard_double_arrow_right_24),
-                        contentDescription = "next forest"
-                    )
+                    {
+                        Button(
+                            onClick = { if (forestIndex > 0) forestIndex-- },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Image(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.baseline_keyboard_double_arrow_left_24),
+                                contentDescription = "previous forest"
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(2f))
+                        Button(
+                            onClick = { if (forestIndex < 2) forestIndex++ },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Image(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.baseline_keyboard_double_arrow_right_24),
+                                contentDescription = "next forest"
+                            )
+                        }
+                    }
                 }
             }
 
-            Column(
-                modifier = Modifier.offset(165.dp, 200.dp)
-            ) {
-                Box {
-                    IsometricTilemap(tiles)
+            Spacer(modifier = Modifier.height(60.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height((screenHeightPx / 8).dp)
+                    //.background(Color.Green)
+            )
+            {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                )
+                {
+                    IsometricTilemap(tiles, screenWidthPx / 2)
                 }
                 Box(
-                    modifier = Modifier.graphicsLayer(translationY = -400f)
-                ) {
+                    modifier = Modifier.fillMaxSize()
+                )
+                {
                     trees.filter {
-                        it.forestid == forestIndex && it.onForest
+                        it.forestId == forestIndex && it.onForest
                     }
-                        .sortedBy { it.x + it.y }
+                        .sortedBy { it.xPosition + it.yPosition }
                         .forEach { tree ->
-                            Tree(
-                                treeData = tree,
-                                isDragging = isDragging,
-                                onLongPress = {
-                                    currentTree = tree
-                                    isDragging = false
+                            viewModel.getTreeById(tree.treeId)
+                            _tree?.let {
+                                Tree(
+                                    forestTree = tree,
+                                    tree = it,
+                                    isDragging = (currentTree?.id == tree.id) && isDragging,
+                                    screenWidthPx / 2,
+                                    onLongPress = {
+                                        currentTree = tree
+                                        isDragging = false
+                                    }
+                                ) { newTreeData ->
+                                    viewModel.UpdateForestTree(newTreeData)
+                                    currentTree = null
                                 }
-                            ) { newTreeData ->
-                                // Update the tree in the forest
-                                trees[newTreeData.id] = newTreeData
-                                currentTree = null
                             }
                         }
-                    currentTree?.let {
-                        FloatingButton(
-                            isDragging = isDragging,
-                            onMoveToggle = {
-                                isDragging = !isDragging
-                                currentTree = currentTree?.copy()
-                            },
-                            onDelete = {
-                                trees[it.id].onForest = false
-                                currentTree = null
-                            }
-                        )
-                    }
                 }
             }
-
-            //Consider adding button
-//            var isAdding by remember { mutableStateOf(false) }
-//
-//            Button(
-//                onClick = { isAdding = !isAdding },
-//                modifier = Modifier.offset(300.dp, 450.dp)
-//            ) {
-//                Image(imageVector = ImageVector.vectorResource(id = R.drawable.circle_icon), contentDescription = "")
-//            }
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp))
+            {
+                currentTree?.let {
+                    FloatingButton(
+                        isDragging = isDragging,
+                        onMoveToggle = {
+                            isDragging = !isDragging
+                            currentTree = currentTree?.copy()
+                        },
+                        onDelete = {
+                            val updateTree = currentTree!!.copy(onForest = false)
+                            viewModel.UpdateForestTree(updateTree)
+                            currentTree = null
+                        }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(50.dp))
 
             val context = LocalContext.current
             val scope = rememberCoroutineScope()
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                modifier = Modifier
-                    .offset(0.dp, 550.dp)
-                    .size(400.dp, 200.dp)
-            ) {
-                // Filter and get tree IDs that are not in the forest
-                val availableTreeIds = trees.filter { !it.onForest }.map { it.id }
+            Box(modifier = Modifier.fillMaxWidth()) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Filter and get tree IDs that are not in the forest
+                    val availableTreeIds = trees.filter { !it.onForest }.map { it.id }
 
-                items(
-                    items = availableTreeIds
-                ) { treeId ->
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(5.dp)
-                            .background(Color.Gray)
-                            .clickable {
-                                val availableSpot = findAvailableSpot(trees, forestIndex)
-
-                                if (availableSpot != null) {
-                                    val treeIndex = trees.indexOfFirst { it.id == treeId }
-                                    if (treeIndex != -1) {
-                                        val updatedTree = trees[treeIndex].copy(
-                                            x = availableSpot.first,
-                                            y = availableSpot.second,
-                                            onForest = true,
-                                            forestid = forestIndex
-                                        )
-                                        trees = trees
-                                            .toMutableList()
-                                            .apply {
-                                                set(treeIndex, updatedTree)
-                                            }
-                                    }
-                                } else {
-                                    // Show a message indicating no available spots
-                                    scope.launch {
-                                        Toast
-                                            .makeText(
-                                                context,
-                                                "No available spot to plant the tree in the current forest.",
-                                                Toast.LENGTH_SHORT
+                    items(
+                        items = availableTreeIds
+                    ) { treeId ->
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(5.dp)
+                                .background(Color.Gray)
+                                .clickable {
+                                    val availableSpot = findAvailableSpot(trees, forestIndex)
+                                    if (availableSpot != null) {
+                                        val treeIndex = trees.indexOfFirst { it.id == treeId }
+                                        if (treeIndex != -1) {
+                                            val updatedTree: ForestTree = trees[treeId].copy(
+                                                xPosition = availableSpot.first,
+                                                yPosition = availableSpot.second,
+                                                onForest = true,
+                                                forestId = forestIndex
                                             )
-                                            .show()
+                                            viewModel.UpdateForestTree(updatedTree)
+                                        }
+                                    } else {
+                                        // Show a message indicating no available spots
+                                        scope.launch {
+                                            Toast
+                                                .makeText(
+                                                    context,
+                                                    "No available spot to plant the tree in the current forest.",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        }
                                     }
                                 }
-                            }
-                    ) {
-                        Text(
-                            text = "Tree ID: $treeId",
-                            color = Color.White,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
+                        ) {
+                            Text(
+                                text = "Tree ID: $treeId",
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
-fun findAvailableSpot(trees: List<TreeData>, forestIndex: Int): Pair<Int, Int>? {
+
+fun findAvailableSpot(trees: List<ForestTree>, forestIndex: Int): Pair<Int, Int>? {
     for (y in 0..4) {
         for (x in 0..4) {
-            val spotTaken = trees.any { it.forestid == forestIndex && it.x == x && it.y == y && it.onForest }
+            val spotTaken = trees.any { it.forestId == forestIndex &&
+                    it.xPosition == x && it.yPosition == y && it.onForest }
             if (!spotTaken) {
                 return Pair(x, y)
             }
@@ -276,13 +285,11 @@ fun findAvailableSpot(trees: List<TreeData>, forestIndex: Int): Pair<Int, Int>? 
     return null
 }
 
-
-
 @Composable
-fun IsometricTile(tile: Tile, imageBitmap: ImageBitmap) {
-    val xOffset = (tile.x - tile.y) * TILE_WIDTH
+fun IsometricTile(tile: Tile, imageBitmap: ImageBitmap, middle : Float) {
+    val xOffset = (tile.x - tile.y) * TILE_WIDTH + (middle - TILE_WIDTH)
     val yOffset = (tile.x + tile.y) * TILE_HEIGHT
-    val position = IntOffset(xOffset, yOffset)
+    val position = IntOffset(xOffset.toInt(), yOffset)
 
     Image(
         bitmap = imageBitmap,
@@ -295,31 +302,36 @@ fun IsometricTile(tile: Tile, imageBitmap: ImageBitmap) {
 }
 
 @Composable
-fun IsometricTilemap(tiles: List<Tile>) {
+fun IsometricTilemap(tiles: List<Tile>, middle : Float) {
     tiles.forEach { tile ->
         val imageBitmap = ImageBitmap.imageResource(id = tile.resourceId)
-        IsometricTile(tile, imageBitmap)
+        IsometricTile(tile, imageBitmap,middle)
     }
 }
 
 @Composable
 fun Tree(
-    treeData: TreeData,
+    forestTree: ForestTree,
+    tree: Tree,
     isDragging: Boolean,
+    middle: Float,
     onLongPress: () -> Unit,
-    onUpdateTree: (TreeData) -> Unit
+    onUpdateTree: (ForestTree) -> Unit
 ) {
-    val initialOffsetX = remember(treeData.x, treeData.y) { ((treeData.x - treeData.y) * TILE_WIDTH).toFloat() }
-    val initialOffsetY = remember(treeData.x, treeData.y) { ((treeData.x + treeData.y) * TILE_HEIGHT).toFloat() }
+    val initialOffsetX = remember(forestTree.xPosition, forestTree.yPosition)
+    { ((forestTree.xPosition - forestTree.yPosition) * TILE_WIDTH) + (middle - TILE_WIDTH) }
+
+    val initialOffsetY = remember(forestTree.xPosition, forestTree.yPosition)
+    { (((forestTree.xPosition + forestTree.yPosition) * TILE_HEIGHT) - TILE_HEIGHT * 3).toFloat() }
 
     var offsetX by remember { mutableFloatStateOf(initialOffsetX) }
     var offsetY by remember { mutableFloatStateOf(initialOffsetY) }
     var prevX by remember { mutableFloatStateOf(offsetX) }
     var prevY by remember { mutableFloatStateOf(offsetY) }
 
-    LaunchedEffect(treeData.x, treeData.y) {
-        offsetX = ((treeData.x - treeData.y) * TILE_WIDTH).toFloat()
-        offsetY = ((treeData.x + treeData.y) * TILE_HEIGHT).toFloat()
+    LaunchedEffect(forestTree.xPosition, forestTree.yPosition) {
+        offsetX = ((forestTree.xPosition - forestTree.yPosition) * TILE_WIDTH) + (middle - TILE_WIDTH)
+        offsetY = ((forestTree.xPosition + forestTree.yPosition) * TILE_HEIGHT - TILE_HEIGHT * 3).toFloat()
     }
 
     Box(
@@ -337,15 +349,21 @@ fun Tree(
                         },
                         onDragEnd = {
                             val tileX =
-                                (((offsetX / TILE_WIDTH) + (offsetY / TILE_HEIGHT)) * 0.5f).roundToInt()
+                                ((((offsetX - middle + TILE_WIDTH) / TILE_WIDTH)
+                                        + ((offsetY + TILE_HEIGHT * 3) / TILE_HEIGHT)) * 0.5f).roundToInt()
                             val tileY =
-                                ((-(offsetX / TILE_WIDTH) + (offsetY / TILE_HEIGHT)) * 0.5f).roundToInt()
+                                ((-((offsetX - middle + TILE_WIDTH) / TILE_WIDTH)
+                                        + ((offsetY + TILE_HEIGHT * 3) / TILE_HEIGHT)) * 0.5f).roundToInt()
                             val range = 0 until 5
 
                             if (tileX in range && tileY in range) {
-                                offsetX = ((tileX - tileY) * TILE_WIDTH).toFloat()
-                                offsetY = ((tileX + tileY) * TILE_HEIGHT).toFloat()
-                                onUpdateTree(treeData.copy(x = tileX, y = tileY))
+                                offsetX =
+                                    ((forestTree.xPosition - forestTree.yPosition) * TILE_WIDTH) + (middle - TILE_WIDTH)
+                                offsetY =
+                                    ((forestTree.xPosition + forestTree.yPosition) * TILE_HEIGHT - TILE_HEIGHT * 3).toFloat()
+                                offsetX = prevX
+                                offsetY = prevY
+                                onUpdateTree(forestTree.copy(xPosition = tileX, yPosition = tileY))
                             } else {
                                 offsetX = prevX
                                 offsetY = prevY
@@ -359,14 +377,11 @@ fun Tree(
                 }
             }
     ) {
-        val id = when (treeData.s) {
-            1 -> R.drawable.apple_level1_0
-            2 -> R.drawable.apple_level1_5
-            else -> R.drawable.apple_level2_1
-        }
-
+        val context = LocalContext.current
+        val idstr = tree.name+"_level3_"+forestTree.color
+        val imageResourceId = context.resources.getIdentifier(idstr, "drawable", context.packageName)
         Image(
-            bitmap = ImageBitmap.imageResource(id = id),
+            bitmap = ImageBitmap.imageResource(id = imageResourceId), //treeID로 image
             contentDescription = "",
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -387,10 +402,10 @@ fun FloatingButton(isDragging: Boolean, onMoveToggle: () -> Unit, onDelete: () -
 
     Row(
         modifier = Modifier
-            .size(200.dp)
-            .offset { IntOffset(-150, 900) }
+            .fillMaxWidth()
     ) {
         if(!isDragging) {
+            Spacer(modifier = Modifier.weight(0.8f))
             Button(
                 modifier = Modifier.weight(1f),
                 onClick = {
@@ -414,10 +429,13 @@ fun FloatingButton(isDragging: Boolean, onMoveToggle: () -> Unit, onDelete: () -
                     contentDescription = ""
                 )
             }
+            Spacer(modifier = Modifier.weight(0.8f))
         }
         else{
-            Text(text = "Now Moving...",
-                modifier = Modifier.offset(50.dp))
+            Spacer(modifier = Modifier.weight(0.4f))
+            Text(text = "Drag and Drop",
+                color = Color.Black)
+            Spacer(modifier = Modifier.weight(0.4f))
         }
     }
 }
