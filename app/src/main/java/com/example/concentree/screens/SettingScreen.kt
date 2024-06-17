@@ -30,6 +30,7 @@ fun SettingScreen(viewModel: AppViewModel) {
     var showHelpDialog by remember { mutableStateOf(false) }
     var showCreditsDialog by remember { mutableStateOf(false) }
 
+    var shownickname by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
     var newPhrase by remember { mutableStateOf("") }
     var phraseToEdit by remember { mutableStateOf<Phrase?>(null) }
@@ -49,6 +50,7 @@ fun SettingScreen(viewModel: AppViewModel) {
         viewModel.getAllPhrases()
         viewModel.getUserById(1)  // Assuming user ID 1 for the current user
         nickname = if (user != null) user?.username.toString() else ""
+        shownickname = nickname
     }
 
     Column(
@@ -69,7 +71,7 @@ fun SettingScreen(viewModel: AppViewModel) {
 
         // User Settings Box
         SettingCategoryBox(title = "사용자 설정") {
-            SettingItem(text = "닉네임 설정 [ 현재 닉네임 : ${nickname} ]") { showNicknameDialog = true }
+            SettingItem(text = "닉네임 설정 [ 현재 닉네임 : ${shownickname} ]") { showNicknameDialog = true }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -100,9 +102,13 @@ fun SettingScreen(viewModel: AppViewModel) {
                         viewModel.UpdateUser(it.copy(username = nickname))
                         viewModel.getUserById(1)
                     }
+                    shownickname = nickname
                     showNicknameDialog = false
                 },
-                onDismiss = { showNicknameDialog = false }
+                onDismiss = {
+                    nickname = ""
+                    showNicknameDialog = false
+                }
             )
         }
 
@@ -179,7 +185,10 @@ fun SettingScreen(viewModel: AppViewModel) {
         if (showHelpDialog) {
             InfoDialog(
                 title = "도움말",
-                message = "여기에 도움말 내용을 작성하세요.",
+                message = "\nGrowth에서 자신만의 나무를 키우고\n\n" +
+                        "Forest에서 나만의 숲을 키워보세요!\n\n" +
+                        "Shop에서 나무와 컬러를 구매하고\n\n" +
+                        "Chart에서 자신의 기록을 확인하세요.",
                 onDismiss = { showHelpDialog = false }
             )
         }
@@ -188,7 +197,9 @@ fun SettingScreen(viewModel: AppViewModel) {
         if (showCreditsDialog) {
             InfoDialog(
                 title = "크레딧",
-                message = "여기에 크레딧 내용을 작성하세요.",
+                message = "\n2팀 - ConcentTree\n\n" +
+                        "2024 1학기 모바일 프로그래밍\n" +
+                        "[고상진 김수경 이지원 임제형]",
                 onDismiss = { showCreditsDialog = false }
             )
         }

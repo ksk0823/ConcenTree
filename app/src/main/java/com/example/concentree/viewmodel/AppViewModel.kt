@@ -57,6 +57,23 @@ class AppViewModel(private val phraseRepository: PhraseRepository,
                 userRepository.InsertUser(newUser)
             }
             getUserById(1)
+            val tree0 = treeRepository.getTreeById(0)
+            if(tree0 == null){
+                val t0 = Tree(0, "apple", "사과나무", 0, true)
+                treeRepository.InsertTree(t0)
+                val t1 = Tree(1, "birch", "자작나무", 100, false)
+                treeRepository.InsertTree(t1)
+                val t2 = Tree(2, "cedar", "삼나무", 100, false)
+                treeRepository.InsertTree(t2)
+                val t3 = Tree(3, "fir", "전나무", 100, false)
+                treeRepository.InsertTree(t3)
+                val t4 = Tree(4, "maple", "단풍나무", 100, false)
+                treeRepository.InsertTree(t4)
+                val t5 = Tree(5, "pine", "소나무", 100, false)
+                treeRepository.InsertTree(t5)
+                val t6 = Tree(6, "spruce", "가문비나무", 100, false)
+                treeRepository.InsertTree(t6)
+            }
         }
     }
 
