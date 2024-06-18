@@ -86,7 +86,7 @@ fun GrowthScreen(viewModel: AppViewModel) {
                 delay(1000L)
                 timeLeftSeconds -= 1
                 secondsCounter++
-                if (secondsCounter % 60 == 0) {  // Update phraseToShow every minute
+                if (secondsCounter % 30 == 0) {  // Update phraseToShow every minute
                     phraseToShow = phraseList.randomOrNull()?.phrase ?: ""
                 }
             }
@@ -126,7 +126,6 @@ fun GrowthScreen(viewModel: AppViewModel) {
             treeImage = R.drawable.plus
         }
     }
-
     LaunchedEffect(initSeconds) {
         if(initSeconds == 0){
             treeStage = 0
@@ -134,37 +133,27 @@ fun GrowthScreen(viewModel: AppViewModel) {
             phraseToShow = init_phrase
         }
     }
-
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
             horizontalArrangement = Arrangement.Start
         ) {
             Icon(painter = painterResource(id = R.drawable.coin), contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "${user?.coins ?: 0}")
         }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
             Text(text = phraseToShow, fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
-
             Box(
-                modifier = Modifier
-                    .size(200.dp)
-                    .background(Color.White, shape = CircleShape)
-                    .clickable { showPopup = true }
+                modifier = Modifier.size(200.dp).background(Color.White, shape = CircleShape).clickable { showPopup = true }
                     .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
@@ -172,17 +161,15 @@ fun GrowthScreen(viewModel: AppViewModel) {
                     modifier = Modifier.size(
                         when {
                             initSeconds == 0 -> 100.dp
-                            treeStage == 0 -> 50.dp
+                            treeStage == 0 -> 60.dp
                             else -> 150.dp
                         })
                 )
             }
-
             Text(text = formatTime(timeLeftSeconds), fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
             Button(modifier = Modifier.size(112.dp, 60.dp),
                 onClick = {
                     if(treeStage == 0){
-                        // 중단 눌렀으니 초기화만 해주기
                         initSeconds = 0
                         timeLeftSeconds = 0
                         timerStarted = false
@@ -219,7 +206,6 @@ fun GrowthScreen(viewModel: AppViewModel) {
                 Text(text = buttonText, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
             }
         }
-
         if (showPopup) {
             TreeSelectionPopup(viewModel, treeList = treeList, onDismiss = { showPopup = false }, onConfirm = { time, selectedTree, selectedColor, description ->
                 timeLeftSeconds = timeToSeconds(time)
@@ -234,10 +220,7 @@ fun GrowthScreen(viewModel: AppViewModel) {
                 settingDescription = description
             })
         }
-
-        if (showCompletionPopup) {
-            CompletionPopup(onDismiss = { showCompletionPopup = false })
-        }
+        if (showCompletionPopup) { CompletionPopup(onDismiss = { showCompletionPopup = false }) }
     }
 }
 
