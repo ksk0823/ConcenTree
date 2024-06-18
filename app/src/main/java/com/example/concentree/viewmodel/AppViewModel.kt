@@ -156,11 +156,13 @@ class AppViewModel(private val phraseRepository: PhraseRepository,
     fun UpdateForestTree(forestTree: ForestTree){
         viewModelScope.launch {
             forestTreeRepository.UpdateForestTree(forestTree)
+            _forestTreeList.value = forestTreeRepository.getAllTreesInForest()
         }
     }
     fun DeleteForestTree(forestTree: ForestTree){
         viewModelScope.launch {
             forestTreeRepository.DeleteForestTree(forestTree)
+            _forestTreeList.value = forestTreeRepository.getAllTreesInForest()
         }
     }
 

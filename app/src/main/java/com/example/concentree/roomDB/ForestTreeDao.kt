@@ -20,7 +20,7 @@ interface ForestTreeDao {
     suspend fun getTreesAtPosition(x: Int, y: Int): List<ForestTree>
 
     // 정원에 현재 심어진 나무들만 불러오기
-    @Query("SELECT * FROM forest_tree WHERE onForest = true")
+    @Query("SELECT * FROM forest_tree")
     suspend fun getAllTreesInForest(): List<ForestTree>
 
     @Insert
