@@ -53,6 +53,11 @@ fun SettingScreen(viewModel: AppViewModel) {
         shownickname = nickname
     }
 
+    LaunchedEffect(showNicknameDialog) {
+        viewModel.getUserById(1)  // Assuming user ID 1 for the current user
+        nickname = if (user != null) user?.username.toString() else ""
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
