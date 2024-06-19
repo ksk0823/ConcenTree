@@ -136,7 +136,13 @@ fun ForestScreen(viewModel: AppViewModel) {
                                 isDragging = false
                                 selectedTree = null
                             },
-                            onSelectTree = { selectedTree = it }
+                            onSelectTree = {
+                                selectedTree = it
+                                isDragging = false
+                            },
+                            isEmptySpace = { x, y->
+                                trees.none { it.xPosition == x && it.yPosition == y && it.forestId == forestIndex && it.onForest }
+                            }
                         )
                     }
             }
@@ -176,7 +182,8 @@ fun Plant(
     isDragging: Boolean,
     middle: Float,
     onUpdateTree: (Int, Int) -> Unit,
-    onSelectTree: (ForestTree) -> Unit
+    onSelectTree: (ForestTree) -> Unit,
+    isEmptySpace : (Int,Int) -> Boolean
 ) {
 
     var offsetX by remember { mutableFloatStateOf(((forestTree.xPosition - forestTree.yPosition) * TILE_WIDTH) + (middle - TILE_WIDTH)) }
@@ -187,6 +194,8 @@ fun Plant(
     LaunchedEffect(forestTree.xPosition, forestTree.yPosition) {
         offsetX = ((forestTree.xPosition - forestTree.yPosition) * TILE_WIDTH) + (middle - TILE_WIDTH)
         offsetY = ((forestTree.xPosition + forestTree.yPosition) * TILE_HEIGHT - TILE_HEIGHT * 3).toFloat()
+        prevX = offsetX
+        prevY = offsetY
     }
 
     Box(
@@ -205,9 +214,10 @@ fun Plant(
                             val tileY =
                                 ((-((offsetX - middle + TILE_WIDTH) / TILE_WIDTH)
                                         + ((offsetY + TILE_HEIGHT * 3) / TILE_HEIGHT)) * 0.5f).roundToInt()
+
                             val range = 0 until 5
 
-                            if (tileX in range && tileY in range) {
+                            if (tileX in range && tileY in range && isEmptySpace(tileX,tileY)) {
                                 prevX = offsetX
                                 prevY = offsetY
                                 onUpdateTree(tileX, tileY)
