@@ -57,30 +57,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun MainScreen(navController: NavHostController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
     val viewModel : AppViewModel = viewModel(factory =
     AppViewModelFactory(PhraseRepository(db), ForestTreeRepository(db), TreeRepository(db), UserRepository(db)))
-    LaunchedEffect(Unit) {
-        //
-    }
-
     Scaffold(
         bottomBar = { ConcenTreeNavigationBar(navController)}
     ){
         Box(Modifier.padding(it)){
             NavGraph(navController, viewModel)
         }
-//        val newTree0 = Tree(0, "basic", "기본나무", 0, true)
-//        val newTree1 = Tree(1, "maple", "단풍나무", 300, true)
-//        val newTree2 = Tree(2, "apple", "사과나무", 500, false)
-//        val newTree3 = Tree(3, "pine", "소나무", 100, true)
-//        viewModel.InsertTree(newTree0)
-//        viewModel.InsertTree(newTree1)
-//        viewModel.InsertTree(newTree2)
-//        viewModel.InsertTree(newTree3)
     }
 }

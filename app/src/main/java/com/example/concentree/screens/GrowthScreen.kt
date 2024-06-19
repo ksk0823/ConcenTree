@@ -333,7 +333,10 @@ fun TreeSelectionPopup(viewModel: AppViewModel, treeList: List<Tree>, onDismiss:
                                 errorMessage = if ((parts[0] > 3) || (parts[0] == 3 && parts[1] > 0) || (parts[0] == 0 && parts[1] == 0)) {
                                     //"시간은 3시간 이하, 30분 이상이여야 합니다."
                                     "시간은 3시간 이하여야 합니다."
-                                } else {
+                                } else if(parts[1] >= 60){
+                                    "형식에 맞는 값을 입력해주세요."
+                                }
+                                else {
                                     null
                                 }
                             }
