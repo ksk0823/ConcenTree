@@ -44,6 +44,7 @@ fun GrowthScreen(viewModel: AppViewModel) {
     var treeImage by remember { mutableStateOf(R.drawable.plus) }
     var treeStage by remember { mutableStateOf(0) }
     var timerStarted by remember { mutableStateOf(false) }
+    var middleClickable by remember { mutableStateOf(true) }
 
     var phraseList by remember { mutableStateOf<List<Phrase>>(emptyList()) }
     var treeList by remember { mutableStateOf<List<Tree>>(emptyList()) }
@@ -153,7 +154,11 @@ fun GrowthScreen(viewModel: AppViewModel) {
         ) {
             Text(text = phraseToShow, fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
             Box(
-                modifier = Modifier.size(200.dp).background(Color.White, shape = CircleShape).clickable { showPopup = true }
+                modifier = Modifier.size(200.dp).background(Color.White, shape = CircleShape).clickable {
+                    if(middleClickable){
+                        showPopup = true
+                    }
+                }
                     .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
@@ -169,6 +174,8 @@ fun GrowthScreen(viewModel: AppViewModel) {
             Text(text = formatTime(timeLeftSeconds), fontSize = 24.sp, modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
             Button(modifier = Modifier.size(112.dp, 60.dp),
                 onClick = {
+                    middleClickable = true
+                    buttonText = "중지"
                     if(treeStage == 0){
                         initSeconds = 0
                         timeLeftSeconds = 0
@@ -218,6 +225,7 @@ fun GrowthScreen(viewModel: AppViewModel) {
                 }
                 settingColor = selectedColor
                 settingDescription = description
+                middleClickable = false
             })
         }
         if (showCompletionPopup) { CompletionPopup(onDismiss = { showCompletionPopup = false }) }
