@@ -120,9 +120,13 @@ fun SettingScreen(viewModel: AppViewModel) {
                 onValueChange = { newPhrase = it },
                 onConfirm = {
                     viewModel.InsertPhrase(Phrase(id = 0, phrase = newPhrase))
+                    newPhrase = ""
                     showAddPhraseDialog = false
                 },
-                onDismiss = { showAddPhraseDialog = false }
+                onDismiss = {
+                    newPhrase = ""
+                    showAddPhraseDialog = false
+                }
             )
         }
 
