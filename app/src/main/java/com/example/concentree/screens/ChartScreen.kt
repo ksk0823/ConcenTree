@@ -69,7 +69,6 @@ import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import com.patrykandpatrick.vico.*
 import java.time.LocalDateTime
 import java.time.LocalTime
 import androidx.compose.runtime.livedata.*
