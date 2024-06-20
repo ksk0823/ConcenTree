@@ -84,7 +84,13 @@ fun ShopScreen(appViewModel: AppViewModel) {
             appViewModel.getTreesInShop() // getTreesInShop() 메서드 호출
             val trees by appViewModel.treeList.collectAsState(initial = emptyList()) // List<Tree>
 
-            var colorsT = listOf<Tree>()
+            var colorsT by remember {
+                mutableStateOf(
+                    listOf<Tree>()
+                )
+            }
+
+
 
             user?.let {
                 val colors = listOf(
@@ -101,7 +107,7 @@ fun ShopScreen(appViewModel: AppViewModel) {
                         id = 0,
                         description = "color",
                         name = it.first,
-                        price = 100,
+                        price = 90,
                         isPurchased = it.second
                     )
                 }
@@ -187,7 +193,7 @@ fun ShopScreen(appViewModel: AppViewModel) {
                                     "White" -> currentUser.copy(colorWhite = true)
                                     else -> currentUser
                                 }
-                                appViewModel.UpdateUser(updatedUser)
+                                appViewModel.UpdateUser(updatedUser.copy(coins = currentUser.coins - tree.price))
                             }
                         }
                     }
